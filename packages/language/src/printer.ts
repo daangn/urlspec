@@ -1,0 +1,117 @@
+import type { LangiumDocument } from "langium";
+import type {
+  PageDeclaration,
+  ParameterDeclaration,
+  PathSegment,
+  StringKeyword,
+  StringLiteralType,
+  Type,
+  TypeReference,
+  UnionType,
+  URLSpecDocument,
+} from "./__generated__/ast";
+
+/**
+ * Print Langium AST back to .urlspec format
+ */
+export function print(doc: LangiumDocument<URLSpecDocument>): string {
+  const model = doc.parseResult.value;
+  const lines: string[] = [];
+
+  // Namespace
+  lines.push(`namespace ${model.namespace.name};`);
+  lines.push("");
+
+  // Param types
+  if (model.paramTypes.length > 0) {
+    for (const paramType of model.paramTypes) {
+      lines.push(`param ${paramType.name} = ${printType(paramType.type)};`);
+    }
+    lines.push("");
+  }
+
+  // Global block
+  if (model.global) {
+    lines.push("global {");
+    for (const param of model.global.parameters) {
+      lines.push(`  ${printParameter(param)}`);
+    }
+    lines.push("}");
+    lines.push("");
+  }
+
+  // Pages
+  for (const page of model.pages) {
+    lines.push(printPage(page));
+    lines.push("");
+  }
+
+  return `${lines.join("\n").trim()}\n`;
+}
+
+function printPage(page: PageDeclaration): string {
+  const lines: string[] = [];
+
+  const path = page.path.segments.map(printPathSegment).join("");
+  lines.push(`page ${page.name} = ${path} {`);
+
+  for (const param of page.parameters) {
+    lines.push(`  ${printParameter(param)}`);
+  }
+
+  lines.push("}");
+
+  return lines.join("\n");
+}
+
+function printPathSegment(segment: PathSegment): string {
+  if (segment.static) {
+    return `/${segment.static}`;
+  }
+  if (segment.parameter) {
+    return `/:${segment.parameter}`;
+  }
+  return "";
+}
+
+function printParameter(param: ParameterDeclaration): string {
+  const optional = param.optional ? "?" : "";
+  return `${param.name}${optional}: ${printType(param.type)};`;
+}
+
+function printType(type: Type): string {
+  if (isStringKeyword(type)) {
+    return "string";
+  }
+
+  if (isStringLiteralType(type)) {
+    return type.value;
+  }
+
+  if (isUnionType(type)) {
+    return type.types.map((t) => t.value).join(" | ");
+  }
+
+  if (isTypeReference(type)) {
+    return type.ref?.$refText || "unknown";
+  }
+
+  return "unknown";
+}
+
+// Type guards
+function isStringKeyword(type: Type): type is StringKeyword {
+  return "$type" in type && type.$type === "StringKeyword";
+}
+
+function isStringLiteralType(type: Type): type is StringLiteralType {
+  return "$type" in type && type.$type === "StringLiteralType";
+}
+
+function isUnionType(type: Type): type is UnionType {
+  return "$type" in type && type.$type === "UnionType";
+}
+
+function isTypeReference(type: Type): type is TypeReference {
+  return "$type" in type && type.$type === "TypeReference";
+}

@@ -1,0 +1,11 @@
+{
+  "projectName": "URLSpec",
+  "languages": [
+    {
+      "id": "urlspec",
+      "grammar": "src/urlspec.langium",
+      "fileExtensions": [".urlspec"]
+    }
+  ],
+  "out": "src/__generated__"
+}

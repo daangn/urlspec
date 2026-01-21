@@ -1,0 +1,72 @@
+{
+  "name": "urlspec-vscode-extension",
+  "displayName": "URLSpec Language Support",
+  "description": "VS Code language support for URLSpec - a type-safe URL definition language",
+  "private": true,
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daangn/urlspec.git",
+    "directory": "packages/urlspec-vscode-extension"
+  },
+  "license": "MIT",
+  "publisher": "daangn",
+  "author": "Danggeun Market Inc.",
+  "keywords": [
+    "urlspec",
+    "url",
+    "dsl",
+    "syntax-highlighting",
+    "language-server"
+  ],
+  "type": "module",
+  "main": "./dist/extension.cjs",
+  "files": [
+    "dist",
+    "syntaxes",
+    "LICENSE",
+    "language-configuration.json"
+  ],
+  "scripts": {
+    "build": "tsdown && vsce package --no-dependencies",
+    "watch": "tsdown --watch"
+  },
+  "contributes": {
+    "grammars": [
+      {
+        "language": "urlspec",
+        "scopeName": "source.urlspec",
+        "path": "./syntaxes/urlspec.tmLanguage.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "urlspec",
+        "aliases": [
+          "URLSpec",
+          "urlspec"
+        ],
+        "extensions": [
+          ".urlspec"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "dependencies": {
+    "@urlspec/language": "workspace:*",
+    "langium": "^4.1.3",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.2.1",
+    "tsdown": "^0.19.0-beta.3",
+    "typescript": "^5.9.3",
+    "vscode": "^1.1.37"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  }
+}

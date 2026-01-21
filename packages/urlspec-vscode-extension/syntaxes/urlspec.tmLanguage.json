@@ -1,0 +1,225 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "URLSpec",
+  "scopeName": "source.urlspec",
+  "fileTypes": [".urlspec"],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#namespace-declaration"
+    },
+    {
+      "include": "#param-declaration"
+    },
+    {
+      "include": "#global-block"
+    },
+    {
+      "include": "#page-declaration"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.urlspec",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "namespace-declaration": {
+      "begin": "\\b(namespace)\\b",
+      "end": ";",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.namespace.urlspec"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.terminator.statement.urlspec"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#string-literal"
+        }
+      ]
+    },
+    "param-declaration": {
+      "begin": "\\b(param)\\b\\s+([a-zA-Z][a-zA-Z0-9_]*)\\s*(=)",
+      "end": ";",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.param.urlspec"
+        },
+        "2": {
+          "name": "entity.name.type.param.urlspec"
+        },
+        "3": {
+          "name": "keyword.operator.assignment.urlspec"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.terminator.statement.urlspec"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#type-expression"
+        }
+      ]
+    },
+    "global-block": {
+      "begin": "\\b(global)\\b\\s*\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.global.urlspec"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.block.end.urlspec"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#parameter-declaration"
+        }
+      ]
+    },
+    "page-declaration": {
+      "begin": "\\b(page)\\b\\s+([a-zA-Z][a-zA-Z0-9_]*)\\s*(=)",
+      "end": "\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.page.urlspec"
+        },
+        "2": {
+          "name": "entity.name.function.page.urlspec"
+        },
+        "3": {
+          "name": "keyword.operator.assignment.urlspec"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.block.end.urlspec"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#path-expression"
+        },
+        {
+          "include": "#parameter-declaration"
+        }
+      ]
+    },
+    "path-expression": {
+      "patterns": [
+        {
+          "name": "string.unquoted.path.urlspec",
+          "begin": "/",
+          "end": "(?=\\{)|(?=\\s*$)",
+          "patterns": [
+            {
+              "match": "(/)(:[a-zA-Z][a-zA-Z0-9_]*)",
+              "captures": {
+                "1": {
+                  "name": "punctuation.separator.path.urlspec"
+                },
+                "2": {
+                  "name": "variable.parameter.path.urlspec"
+                }
+              }
+            },
+            {
+              "match": "(/?)([a-zA-Z][a-zA-Z0-9_]*)",
+              "captures": {
+                "1": {
+                  "name": "punctuation.separator.path.urlspec"
+                },
+                "2": {
+                  "name": "constant.other.path-segment.urlspec"
+                }
+              }
+            },
+            {
+              "name": "punctuation.separator.path.urlspec",
+              "match": "/"
+            }
+          ]
+        }
+      ]
+    },
+    "parameter-declaration": {
+      "begin": "([a-zA-Z][a-zA-Z0-9_]*)\\s*(\\??)\\s*(:)",
+      "end": ";",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.parameter.urlspec"
+        },
+        "2": {
+          "name": "keyword.operator.optional.urlspec"
+        },
+        "3": {
+          "name": "punctuation.separator.type.urlspec"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.terminator.statement.urlspec"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#type-expression"
+        }
+      ]
+    },
+    "type-expression": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "name": "keyword.type.string.urlspec",
+          "match": "\\bstring\\b"
+        },
+        {
+          "include": "#string-literal"
+        },
+        {
+          "name": "entity.name.type.urlspec",
+          "match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\b"
+        },
+        {
+          "name": "keyword.operator.union.urlspec",
+          "match": "\\|"
+        }
+      ]
+    },
+    "string-literal": {
+      "name": "string.quoted.double.urlspec",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.urlspec",
+          "match": "\\\\."
+        }
+      ]
+    }
+  }
+}

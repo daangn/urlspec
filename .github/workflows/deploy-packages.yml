@@ -1,0 +1,44 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Deploy
+
+jobs:
+  deploy-packages:
+    name: Packages
+    runs-on: k8s-ubuntu-x64-4cores
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ORG_GITHUB_EMU_READ_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - run: yarn install --immutable
+
+      - run: yarn build
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload VSIX to GitHub Release
+        if: steps.changesets.outputs.published == 'true'
+        shell: bash
+        run: |
+          TAG_NAME=$(git describe --tags --abbrev=0)
+          VSIX_FILE=$(ls *.vsix)
+
+          gh release upload "$TAG_NAME" "$VSIX_FILE" --clobber
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
