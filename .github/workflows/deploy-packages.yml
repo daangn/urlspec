@@ -8,12 +8,11 @@ name: Deploy
 jobs:
   deploy-packages:
     name: Packages
-    runs-on: k8s-ubuntu-x64-4cores
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.ORG_GITHUB_EMU_READ_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -32,13 +31,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Upload VSIX to GitHub Release
+      - name: Upload VSIX to Package-Specific Release
         if: steps.changesets.outputs.published == 'true'
         shell: bash
         run: |
-          TAG_NAME=$(git describe --tags --abbrev=0)
-          VSIX_FILE=$(ls *.vsix)
+          PACKAGE_NAME="urlspec-vscode-extension"
+          VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r ".[] | select(.name == \"$PACKAGE_NAME\") | .version")
 
-          gh release upload "$TAG_NAME" "$VSIX_FILE" --clobber
+          if [ -n "$VERSION" ] && [ "$VERSION" != "null" ]; then
+            TAG_NAME="$PACKAGE_NAME@$VERSION"
+            echo "Target Tag: $TAG_NAME"
+
+            cd packages/$PACKAGE_NAME
+
+            VSIX_FILE=$(ls *.vsix)
+            gh release upload "$TAG_NAME" "$VSIX_FILE" --clobber
+          else
+            echo "No update for $PACKAGE_NAME in this release."
+          fi
         env:
           GITHUB_TOKEN: ${{ github.token }}
