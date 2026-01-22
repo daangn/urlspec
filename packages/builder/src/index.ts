@@ -3,6 +3,7 @@
  */
 
 import { writeFileSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 import {
   createEndpoint,
   createGlobalBlock,
@@ -182,10 +183,49 @@ export class URLSpec {
 
   /**
    * Write to file
+   * @param path - The file path to write to
+   * @param options - Optional configuration
+   * @param options.allowedBaseDir - Optional base directory to restrict writes to
    */
-  async writeFile(path: string): Promise<void> {
+  async writeFile(
+    path: string,
+    options?: { allowedBaseDir?: string },
+  ): Promise<void> {
+    this.validateFilePath(path, options?.allowedBaseDir);
+
     const content = this.toString();
     writeFileSync(path, content, "utf-8");
+  }
+
+  private validateFilePath(path: string, allowedBaseDir?: string): void {
+    const normalizedPath = normalize(path);
+
+    if (normalizedPath.includes("..")) {
+      throw new Error(
+        `Invalid file path: path traversal detected in "${path}"`,
+      );
+    }
+
+    const resolvedPath = resolve(normalizedPath);
+    const sensitiveDirectories = ["/etc", "/sys", "/proc", "/root"];
+    for (const dir of sensitiveDirectories) {
+      if (resolvedPath.startsWith(dir)) {
+        throw new Error(
+          `Invalid file path: cannot write to sensitive directory "${dir}"`,
+        );
+      }
+    }
+
+    if (allowedBaseDir) {
+      const resolvedBaseDir = resolve(allowedBaseDir);
+      const resolvedFilePath = resolve(normalizedPath);
+
+      if (!resolvedFilePath.startsWith(resolvedBaseDir)) {
+        throw new Error(
+          `Invalid file path: "${path}" is outside allowed directory "${allowedBaseDir}"`,
+        );
+      }
+    }
   }
 
   private buildType(type: ParamType): Type {

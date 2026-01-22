@@ -129,4 +129,68 @@ describe("URLSpec Builder", () => {
     expect(result).toContain("page approved_list = /jobs/approved");
     expect(result).toContain("page rejected_list = /jobs/rejected");
   });
+
+  describe("Security - Path Traversal Prevention", () => {
+    it("should reject paths with .. traversal sequences", async () => {
+      const spec = new URLSpec();
+      spec.setNamespace("test");
+
+      await expect(spec.writeFile("../../../etc/passwd")).rejects.toThrow(
+        "path traversal detected",
+      );
+    });
+
+    it("should reject paths to sensitive system directories", async () => {
+      const spec = new URLSpec();
+      spec.setNamespace("test");
+
+      await expect(spec.writeFile("/etc/hosts")).rejects.toThrow(
+        "cannot write to sensitive directory",
+      );
+
+      await expect(spec.writeFile("/sys/kernel/config")).rejects.toThrow(
+        "cannot write to sensitive directory",
+      );
+
+      await expect(spec.writeFile("/proc/version")).rejects.toThrow(
+        "cannot write to sensitive directory",
+      );
+
+      await expect(spec.writeFile("/root/.bashrc")).rejects.toThrow(
+        "cannot write to sensitive directory",
+      );
+    });
+
+    it("should reject paths outside allowed base directory", async () => {
+      const spec = new URLSpec();
+      spec.setNamespace("test");
+
+      await expect(
+        spec.writeFile("/tmp/test.urlspec", { allowedBaseDir: "/home/user" }),
+      ).rejects.toThrow("outside allowed directory");
+    });
+
+    it("should allow valid paths within allowed base directory", async () => {
+      const spec = new URLSpec();
+      spec.setNamespace("test");
+      spec.addPage({ name: "home", path: "/" });
+
+      // This should not throw (but will fail to write without proper setup)
+      // We're just testing that validation passes
+      const tmpDir = "/tmp";
+      await expect(
+        spec.writeFile(`${tmpDir}/test.urlspec`, { allowedBaseDir: tmpDir }),
+      ).resolves.not.toThrow();
+    });
+
+    it("should normalize paths before validation", async () => {
+      const spec = new URLSpec();
+      spec.setNamespace("test");
+
+      // These should be rejected even with path obfuscation
+      await expect(spec.writeFile("/tmp/../etc/passwd")).rejects.toThrow();
+
+      await expect(spec.writeFile("/tmp/./../../etc/passwd")).rejects.toThrow();
+    });
+  });
 });
