@@ -5,17 +5,15 @@
 import { writeFileSync } from "node:fs";
 import { normalize, resolve } from "node:path";
 import {
-  createEndpoint,
   createGlobalBlock,
   createPageDeclaration,
   createParameterDeclaration,
   createParamTypeDeclaration,
-  createPrimitiveType,
   createStringLiteralType,
+  createStringType,
   createTypeReference,
   createUnionType,
   createURLSpecDocument,
-  type EndpointDeclaration,
   type GlobalBlock,
   type PageDeclaration,
   type ParameterDeclaration,
@@ -27,7 +25,6 @@ import {
 
 // Re-export AST types
 export type {
-  EndpointDeclaration,
   GlobalBlock,
   NamespaceDeclaration,
   PageDeclaration,
@@ -35,7 +32,7 @@ export type {
   ParamTypeDeclaration,
   Path,
   PathSegment,
-  PrimitiveType,
+  StringKeyword,
   StringLiteralType,
   Type,
   TypeReference,
@@ -44,21 +41,20 @@ export type {
 } from "@urlspec/language";
 // Re-export AST builder functions for convenience
 export {
-  createEndpoint,
   createGlobalBlock,
   createNamespace,
   createPageDeclaration,
   createParameterDeclaration,
   createParamTypeDeclaration,
-  createPrimitiveType,
   createStringLiteralType,
+  createStringType,
   createTypeReference,
   createUnionType,
   createURLSpecDocument,
   parsePath,
 } from "@urlspec/language";
 
-export type ParamType = "string" | "number" | "boolean" | string | string[];
+export type ParamType = "string" | string | string[];
 
 export interface ParameterDefinition {
   name: string;
@@ -78,7 +74,6 @@ export interface PageDefinition {
  */
 export class URLSpec {
   private namespace?: string;
-  private endpoints: Array<{ name: string; url: string }> = [];
   private paramTypes: Map<string, ParamType> = new Map();
   private globalParams: ParameterDefinition[] = [];
   private pages: PageDefinition[] = [];
@@ -88,13 +83,6 @@ export class URLSpec {
    */
   setNamespace(name: string): void {
     this.namespace = name;
-  }
-
-  /**
-   * Add an endpoint
-   */
-  addEndpoint(name: string, url: string): void {
-    this.endpoints.push({ name, url });
   }
 
   /**
@@ -126,11 +114,6 @@ export class URLSpec {
       throw new Error("Namespace is required");
     }
 
-    // Build endpoints
-    const endpoints: EndpointDeclaration[] = this.endpoints.map((ep) =>
-      createEndpoint(ep.name, ep.url),
-    );
-
     // Build param types
     const paramTypes: ParamTypeDeclaration[] = [];
     for (const [name, type] of this.paramTypes.entries()) {
@@ -157,7 +140,6 @@ export class URLSpec {
 
     return createURLSpecDocument({
       namespace: this.namespace,
-      endpoints,
       paramTypes,
       global,
       pages,
@@ -230,8 +212,8 @@ export class URLSpec {
 
   private buildType(type: ParamType): Type {
     if (typeof type === "string") {
-      if (type === "string" || type === "number" || type === "boolean") {
-        return createPrimitiveType(type);
+      if (type === "string") {
+        return createStringType();
       }
       // Check if it's a reference to a param type
       if (this.paramTypes.has(type)) {
@@ -245,7 +227,7 @@ export class URLSpec {
       return createUnionType(type);
     }
     // Default to string
-    return createPrimitiveType("string");
+    return createStringType();
   }
 
   private buildParameter(param: ParameterDefinition): ParameterDeclaration {

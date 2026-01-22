@@ -40,8 +40,6 @@ import { parse } from '@urlspec/language';
 const urlspecContent = `
 namespace "jobs";
 
-endpoint production = "https://jobs.example.com";
-
 page list = /jobs {
   category?: string;
 }
@@ -64,11 +62,9 @@ const spec = resolve(urlspecContent);
 
 // Easier to work with resolved structure
 console.log(spec.namespace); // "jobs"
-console.log(spec.endpoints);
-// { production: "https://jobs.example.com" }
 
-console.log(spec.pages.list.path); // "/jobs"
-console.log(spec.pages.list.parameters);
+console.log(spec.pages[0].path); // "/jobs"
+console.log(spec.pages[0].parameters);
 // Includes both page-specific and global parameters
 ```
 
@@ -145,8 +141,6 @@ Parses and resolves URLSpec into a developer-friendly structure with:
 const spec = resolve(`
 namespace "shop";
 
-endpoint production = "https://shop.example.com";
-
 param category = "electronics" | "clothing" | "food";
 
 global {
@@ -159,14 +153,13 @@ page products = /products {
 `);
 
 console.log(spec.namespace); // "shop"
-console.log(spec.endpoints.production); // "https://shop.example.com"
-console.log(spec.paramTypes.category);
-// { kind: 'union', types: [{ kind: 'literal', value: 'electronics' }, ...] }
+console.log(spec.paramTypes[0]);
+// { name: 'category', type: { kind: 'union', values: ['electronics', 'clothing', 'food'] } }
 
-const productsPage = spec.pages.products;
-console.log(productsPage.parameters.cat.type);
+const productsPage = spec.pages[0];
+console.log(productsPage.parameters[1].type);
 // Resolved to actual union type, not a reference
-console.log(productsPage.parameters.utm_source);
+console.log(productsPage.parameters[0]);
 // Global parameter merged into page
 ```
 
@@ -252,10 +245,9 @@ Union type representing all possible parameter types.
 
 ```typescript
 type ResolvedType =
-  | { kind: 'primitive'; type: 'string' | 'number' | 'boolean' }
+  | { kind: 'string' }
   | { kind: 'literal'; value: string }
-  | { kind: 'union'; types: ResolvedType[] }
-  | { kind: 'reference'; name: string };
+  | { kind: 'union'; values: string[] };
 ```
 
 ### `ResolvedPathSegment`
@@ -385,12 +377,6 @@ URLSpec is defined using Langium grammar. Key syntax elements:
 namespace "my-namespace";
 ```
 
-### Endpoints
-
-```urlspec
-endpoint local = "http://localhost:3000";
-endpoint production = "https://example.com";
-```
 
 ### Parameter Types
 
@@ -404,7 +390,7 @@ param sort_order = "asc" | "desc";
 ```urlspec
 global {
   utm_source?: string;
-  debug?: boolean;
+  debug?: "true" | "false";
 }
 ```
 
@@ -424,15 +410,15 @@ page user = /users/:user_id {
 page post = /blog/:category/:post_id {
   category: string;
   post_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 ```
 
 ### Type Syntax
 
 ```urlspec
-// Primitives
-string, number, boolean
+// String type
+string
 
 // String literal
 "active"

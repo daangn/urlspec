@@ -19,7 +19,7 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
   const lines: string[] = [];
 
   // Namespace
-  lines.push(`namespace ${model.namespace.name};`);
+  lines.push(`namespace "${model.namespace.name}";`);
   lines.push("");
 
   // Param types
@@ -85,11 +85,14 @@ function printType(type: Type): string {
   }
 
   if (isStringLiteralType(type)) {
-    return type.value;
+    // Keep the quotes in the string literal value
+    return type.value.startsWith('"') ? type.value : `"${type.value}"`;
   }
 
   if (isUnionType(type)) {
-    return type.types.map((t) => t.value).join(" | ");
+    return type.types
+      .map((t) => (t.value.startsWith('"') ? t.value : `"${t.value}"`))
+      .join(" | ");
   }
 
   if (isTypeReference(type)) {

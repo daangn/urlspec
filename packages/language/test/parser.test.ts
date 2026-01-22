@@ -15,24 +15,6 @@ namespace "jobs";
     expect(model.namespace.name).toBe("jobs");
   });
 
-  it("should parse endpoints", async () => {
-    const input = `
-namespace "jobs";
-
-endpoint alpha = "https://jobs.alpha.karrotwebview.com";
-endpoint production = "https://jobs.karrotwebview.com";
-`;
-
-    const doc = await parse(input);
-    expect(doc.parseResult.lexerErrors).toHaveLength(0);
-    expect(doc.parseResult.parserErrors).toHaveLength(0);
-
-    const model = doc.parseResult.value;
-    expect(model.endpoints).toHaveLength(2);
-    expect(model.endpoints[0]?.name).toBe("alpha");
-    expect(model.endpoints[1]?.name).toBe("production");
-  });
-
   it("should parse param types", async () => {
     const input = `
 namespace "jobs";
@@ -83,7 +65,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 `;
 
@@ -111,9 +93,6 @@ page detail = /jobs/:job_id {
     const input = `
 namespace "jobs";
 
-endpoint alpha = "https://jobs.alpha.karrotwebview.com";
-endpoint production = "https://jobs.karrotwebview.com";
-
 param sort_order = "recent" | "popular" | "trending";
 param job_status = "active" | "closed" | "draft";
 
@@ -129,7 +108,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
   status?: job_status;
 }
 `;
@@ -140,7 +119,6 @@ page detail = /jobs/:job_id {
 
     const model = doc.parseResult.value;
     expect(model.namespace.name).toBe("jobs");
-    expect(model.endpoints).toHaveLength(2);
     expect(model.paramTypes).toHaveLength(2);
     expect(model.global).toBeDefined();
     expect(model.pages).toHaveLength(2);

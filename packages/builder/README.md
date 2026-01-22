@@ -39,9 +39,6 @@ const spec = new URLSpec();
 
 spec.setNamespace('jobs');
 
-spec.addEndpoint('alpha', 'https://jobs.alpha.example.com');
-spec.addEndpoint('production', 'https://jobs.example.com');
-
 spec.addParamType('sort_order', ['recent', 'popular', 'trending']);
 spec.addParamType('job_status', ['active', 'closed', 'draft']);
 
@@ -65,7 +62,7 @@ spec.addPage({
   path: '/jobs/:job_id',
   parameters: [
     { name: 'job_id', type: 'string' },
-    { name: 'preview', type: 'boolean', optional: true },
+    { name: 'preview', type: ['true', 'false'], optional: true },
     { name: 'status', type: 'job_status', optional: true },
   ],
 });
@@ -82,9 +79,6 @@ await spec.writeFile('./jobs.urlspec');
 ```urlspec
 namespace "jobs";
 
-endpoint alpha = "https://jobs.alpha.example.com";
-endpoint production = "https://jobs.example.com";
-
 param sort_order = "recent" | "popular" | "trending";
 param job_status = "active" | "closed" | "draft";
 
@@ -99,7 +93,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
   status?: job_status;
 }
 ```
@@ -126,14 +120,6 @@ Set the namespace for the URLSpec document (required).
 spec.setNamespace('api.v1');
 ```
 
-##### `addEndpoint(name: string, url: string): void`
-
-Add an environment endpoint.
-
-```typescript
-spec.addEndpoint('local', 'http://localhost:3000');
-spec.addEndpoint('production', 'https://api.example.com');
-```
 
 ##### `addParamType(name: string, type: ParamType): void`
 
@@ -156,7 +142,7 @@ spec.addParamType('user_sort', 'sort');
 
 **`ParamType` Definition:**
 ```typescript
-type ParamType = 'string' | 'number' | 'boolean' | string | string[];
+type ParamType = 'string' | string | string[];
 ```
 
 ##### `addGlobalParam(param: ParameterDefinition): void`
@@ -172,7 +158,7 @@ spec.addGlobalParam({
 
 spec.addGlobalParam({
   name: 'debug',
-  type: 'boolean',
+  type: ['true', 'false'],
   optional: true,
 });
 ```
@@ -248,7 +234,6 @@ import { URLSpec } from '@urlspec/builder';
 const spec = new URLSpec();
 
 spec.setNamespace('blog');
-spec.addEndpoint('production', 'https://blog.example.com');
 
 spec.addPage({
   name: 'home',
@@ -275,7 +260,6 @@ import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
 spec.setNamespace('jobs');
-spec.addEndpoint('production', 'https://jobs.example.com');
 
 // Define available statuses
 const statuses = ['pending', 'approved', 'rejected', 'archived'];
@@ -286,8 +270,8 @@ for (const status of statuses) {
     name: `${status}_jobs`,
     path: `/jobs/${status}`,
     parameters: [
-      { name: 'page', type: 'number', optional: true },
-      { name: 'limit', type: 'number', optional: true },
+      { name: 'page', type: 'string', optional: true },
+      { name: 'limit', type: 'string', optional: true },
     ],
   });
 }
@@ -338,7 +322,6 @@ import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
 spec.setNamespace('analytics');
-spec.addEndpoint('production', 'https://example.com');
 
 // Add global tracking parameters
 spec.addGlobalParam({
@@ -406,7 +389,6 @@ const openAPISchema = {
 // Convert to URLSpec
 const spec = new URLSpec();
 spec.setNamespace('api');
-spec.addEndpoint('production', openAPISchema.basePath);
 
 for (const [path, methods] of Object.entries(openAPISchema.paths)) {
   const getMethod = methods.get;
@@ -419,7 +401,7 @@ for (const [path, methods] of Object.entries(openAPISchema.paths)) {
       path: urlspecPath,
       parameters: getMethod.parameters.map(p => ({
         name: p.name,
-        type: p.type === 'integer' ? 'number' : 'string',
+        type: 'string', // All types are string in URLSpec
         optional: p.in !== 'path',
       })),
     });
@@ -445,7 +427,6 @@ const legacyRoutes = [
 // Convert to URLSpec
 const spec = new URLSpec();
 spec.setNamespace('website');
-spec.addEndpoint('production', 'https://example.com');
 
 for (const route of legacyRoutes) {
   spec.addPage({
@@ -499,17 +480,13 @@ import {
   createURLSpecDocument,
   createPageDeclaration,
   createParameterDeclaration,
-  createPrimitiveType,
+  createStringType,
   createStringLiteralType,
   createUnionType,
-  createEndpoint,
 } from '@urlspec/builder';
 
 const ast = createURLSpecDocument({
   namespace: 'api',
-  endpoints: [
-    createEndpoint('production', 'https://api.example.com'),
-  ],
   pages: [
     createPageDeclaration(
       'users',
@@ -537,7 +514,6 @@ import type {
   PageDeclaration,
   ParameterDeclaration,
   Type,
-  EndpointDeclaration,
   // ... and more
 } from '@urlspec/builder';
 ```

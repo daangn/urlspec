@@ -6,8 +6,6 @@ describe("URLSpec Resolver", () => {
     const input = `
 namespace "jobs";
 
-endpoint alpha = "https://jobs.alpha.karrotwebview.com";
-
 page list = /jobs {
   category?: string;
 }
@@ -17,11 +15,6 @@ page list = /jobs {
     const spec = resolve(doc);
 
     expect(spec.namespace).toBe("jobs");
-    expect(spec.endpoints).toHaveLength(1);
-    expect(spec.endpoints[0]).toEqual({
-      name: "alpha",
-      url: "https://jobs.alpha.karrotwebview.com",
-    });
 
     expect(spec.pages).toHaveLength(1);
     expect(spec.pages[0]?.name).toBe("list");
@@ -115,8 +108,6 @@ namespace "jobs";
 
 page test = /test {
   str: string;
-  num: number;
-  bool: boolean;
   literal: "exact";
   union: "a" | "b" | "c";
   optional?: string;
@@ -127,23 +118,18 @@ page test = /test {
     const spec = resolve(doc);
 
     const params = spec.pages[0]?.parameters;
-    expect(params?.[0]?.type).toEqual({ kind: "primitive", value: "string" });
-    expect(params?.[1]?.type).toEqual({ kind: "primitive", value: "number" });
-    expect(params?.[2]?.type).toEqual({ kind: "primitive", value: "boolean" });
-    expect(params?.[3]?.type).toEqual({ kind: "literal", value: "exact" });
-    expect(params?.[4]?.type).toEqual({
+    expect(params?.[0]?.type).toEqual({ kind: "string" });
+    expect(params?.[1]?.type).toEqual({ kind: "literal", value: "exact" });
+    expect(params?.[2]?.type).toEqual({
       kind: "union",
       values: ["a", "b", "c"],
     });
-    expect(params?.[5]?.optional).toBeTruthy();
+    expect(params?.[3]?.optional).toBeTruthy();
   });
 
   it("should resolve complete example", async () => {
     const input = `
 namespace "jobs";
-
-endpoint alpha = "https://jobs.alpha.karrotwebview.com";
-endpoint production = "https://jobs.karrotwebview.com";
 
 param sort_order = "recent" | "popular" | "trending";
 param job_status = "active" | "closed" | "draft";
@@ -160,7 +146,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
   status?: job_status;
 }
 `;
@@ -169,7 +155,6 @@ page detail = /jobs/:job_id {
     const spec = resolve(doc);
 
     expect(spec.namespace).toBe("jobs");
-    expect(spec.endpoints).toHaveLength(2);
     expect(spec.paramTypes).toHaveLength(2);
     expect(spec.global).toHaveLength(2);
     expect(spec.pages).toHaveLength(2);

@@ -32,9 +32,6 @@ Create a `.urlspec` file:
 ```urlspec
 namespace "jobs";
 
-endpoint alpha = "https://jobs.alpha.example.com";
-endpoint production = "https://jobs.example.com";
-
 param sort_order = "recent" | "popular" | "trending";
 param job_status = "active" | "closed" | "draft";
 
@@ -50,7 +47,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
   status?: job_status;
 }
 ```
@@ -73,27 +70,17 @@ console.log(spec.pages.list.parameters.sort.type); // ["recent", "popular", "tre
 ```typescript
 import { URLSpec } from '@urlspec/builder';
 
-const spec = new URLSpec()
-  .setNamespace('jobs')
-  .addEndpoint('production', 'https://jobs.example.com')
-  .addParamType('sort_order', {
-    kind: 'union',
-    types: [
-      { kind: 'literal', value: 'recent' },
-      { kind: 'literal', value: 'popular' },
-    ],
-  })
-  .addPage({
-    name: 'list',
-    path: '/jobs',
-    parameters: [
-      {
-        name: 'sort',
-        optional: false,
-        type: { kind: 'reference', name: 'sort_order' },
-      },
-    ],
-  });
+const spec = new URLSpec();
+spec.setNamespace('jobs');
+spec.addParamType('sort_order', ['recent', 'popular', 'trending']);
+spec.addPage({
+  name: 'list',
+  path: '/jobs',
+  parameters: [
+    { name: 'category', type: 'string', optional: true },
+    { name: 'sort', type: 'sort_order' },
+  ],
+});
 
 console.log(spec.toString());
 ```
@@ -139,9 +126,9 @@ This repository is organized as a monorepo containing three main packages:
 
 ### Type System
 
-URLSpec supports a rich type system for query parameters:
+URLSpec supports a type system for query parameters:
 
-- **Primitives**: `string`
+- **String Type**: `string`
 - **String Literals**: `"active"`, `"closed"`
 - **Union Types**: `"recent" | "popular" | "trending"`
 - **Type Aliases**: Define reusable types with `param`

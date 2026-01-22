@@ -6,7 +6,6 @@ describe("URLSpec Builder", () => {
     const spec = new URLSpec();
 
     spec.setNamespace("jobs");
-    spec.addEndpoint("production", "https://jobs.karrotwebview.com");
     spec.addPage({
       name: "list",
       path: "/jobs",
@@ -16,9 +15,6 @@ describe("URLSpec Builder", () => {
     const result = spec.toString();
 
     expect(result).toContain('namespace "jobs";');
-    expect(result).toContain(
-      'endpoint production = "https://jobs.karrotwebview.com";',
-    );
     expect(result).toContain("page list = /jobs {");
     expect(result).toContain("category?: string;");
   });
@@ -66,8 +62,6 @@ describe("URLSpec Builder", () => {
     const spec = new URLSpec();
 
     spec.setNamespace("jobs");
-    spec.addEndpoint("alpha", "https://jobs.alpha.karrotwebview.com");
-    spec.addEndpoint("production", "https://jobs.karrotwebview.com");
 
     spec.addParamType("sort_order", ["recent", "popular", "trending"]);
     spec.addParamType("job_status", ["active", "closed", "draft"]);
@@ -92,7 +86,7 @@ describe("URLSpec Builder", () => {
       path: "/jobs/:job_id",
       parameters: [
         { name: "job_id", type: "string" },
-        { name: "preview", type: "boolean", optional: true },
+        { name: "preview", type: ["true", "false"], optional: true },
         { name: "status", type: "job_status", optional: true },
       ],
     });
@@ -100,8 +94,6 @@ describe("URLSpec Builder", () => {
     const result = spec.toString();
 
     expect(result).toContain('namespace "jobs";');
-    expect(result).toContain("endpoint alpha");
-    expect(result).toContain("endpoint production");
     expect(result).toContain("param sort_order");
     expect(result).toContain("param job_status");
     expect(result).toContain("global {");
@@ -119,7 +111,7 @@ describe("URLSpec Builder", () => {
       spec.addPage({
         name: `${status}_list`,
         path: `/jobs/${status}`,
-        parameters: [{ name: "page", type: "number", optional: true }],
+        parameters: [{ name: "page", type: "string", optional: true }],
       });
     }
 

@@ -10,7 +10,7 @@ namespace "jobs";
 page list = /jobs {
   user_id: string;
   sort_order?: string;
-  is_active: boolean;
+  is_active: "true" | "false";
 }
 `;
 
@@ -91,7 +91,7 @@ namespace "jobs";
 global {
   utm_source?: string;
   referrer?: string;
-  is_preview: boolean;
+  is_preview: "true" | "false";
 }
 `;
 
@@ -147,7 +147,7 @@ page list = /jobs {
 namespace "jobs";
 
 page detail = /jobs/:job_id {
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 `;
 
@@ -168,7 +168,7 @@ namespace "jobs";
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 `;
 
@@ -184,7 +184,7 @@ namespace "jobs";
 
 page comment = /articles/:article_id/comments/:comment_id {
   article_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 `;
 
@@ -207,7 +207,7 @@ namespace "jobs";
 page comment = /articles/:article_id/comments/:comment_id {
   article_id: string;
   comment_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 `;
 
@@ -241,7 +241,7 @@ namespace "jobs";
 
 page detail = /jobs/:job_id {
   sortOrder?: string;
-  preview?: boolean;
+  preview?: "true" | "false";
 }
 `;
 
@@ -272,7 +272,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
   status?: JobStatus;
 }
 `;

@@ -5,9 +5,6 @@ describe("URLSpec Printer", () => {
   it("should print and parse roundtrip", async () => {
     const input = `namespace "jobs";
 
-endpoint alpha = "https://jobs.alpha.karrotwebview.com";
-endpoint production = "https://jobs.karrotwebview.com";
-
 param sort_order = "recent" | "popular" | "trending";
 param job_status = "active" | "closed" | "draft";
 
@@ -23,7 +20,7 @@ page list = /jobs {
 
 page detail = /jobs/:job_id {
   job_id: string;
-  preview?: boolean;
+  preview?: "true" | "false";
   status?: job_status;
 }
 `;
