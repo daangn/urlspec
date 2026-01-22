@@ -1,17 +1,9 @@
 {
   "name": "urlspec-vscode-extension",
   "displayName": "URLSpec Language Support",
-  "description": "VS Code language support for URLSpec - a type-safe URL definition language",
-  "private": true,
   "version": "0.0.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/daangn/urlspec.git",
-    "directory": "packages/urlspec-vscode-extension"
-  },
-  "license": "MIT",
-  "publisher": "daangn",
-  "author": "Danggeun Market Inc.",
+  "private": true,
+  "description": "VS Code language support for URLSpec - a type-safe URL definition language",
   "keywords": [
     "urlspec",
     "url",
@@ -19,6 +11,14 @@
     "syntax-highlighting",
     "language-server"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daangn/urlspec.git",
+    "directory": "packages/urlspec-vscode-extension"
+  },
+  "license": "MIT",
+  "author": "Danggeun Market Inc.",
+  "publisher": "daangn",
   "type": "module",
   "main": "./dist/extension.cjs",
   "files": [

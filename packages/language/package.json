@@ -2,13 +2,6 @@
   "name": "@urlspec/language",
   "version": "0.0.0",
   "description": "Core language implementation for URLSpec using Langium",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/daangn/urlspec.git",
-    "directory": "packages/language"
-  },
-  "license": "MIT",
-  "author": "Danggeun Market Inc.",
   "keywords": [
     "urlspec",
     "url",
@@ -18,6 +11,13 @@
     "type-safe",
     "url-builder"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daangn/urlspec.git",
+    "directory": "packages/language"
+  },
+  "license": "MIT",
+  "author": "Danggeun Market Inc.",
   "type": "module",
   "exports": {
     ".": {

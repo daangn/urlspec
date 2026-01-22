@@ -1,14 +1,7 @@
 {
   "name": "@urlspec/builder",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Programmatic API to build URLSpec files",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/daangn/urlspec.git",
-    "directory": "packages/builder"
-  },
-  "license": "MIT",
-  "author": "Danggeun Market Inc.",
   "keywords": [
     "urlspec",
     "url",
@@ -17,6 +10,13 @@
     "type-safe",
     "url-builder"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daangn/urlspec.git",
+    "directory": "packages/builder"
+  },
+  "license": "MIT",
+  "author": "Danggeun Market Inc.",
   "type": "module",
   "exports": {
     ".": {
