@@ -9,6 +9,10 @@ jobs:
   deploy-packages:
     name: Packages
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,6 +39,8 @@ jobs:
       - name: Upload VSIX to Package-Specific Release
         if: steps.changesets.outputs.published == 'true'
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           PACKAGE_NAME="urlspec-vscode-extension"
           VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r ".[] | select(.name == \"$PACKAGE_NAME\") | .version")
@@ -50,5 +56,3 @@ jobs:
           else
             echo "No update for $PACKAGE_NAME in this release."
           fi
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
