@@ -15,7 +15,8 @@
   "scripts": {
     "build": "ultra -r build",
     "format": "biome check --fix --unsafe",
-    "release": "changeset publish"
+    "changeset:publish": "changeset publish",
+    "changeset:version": "changeset version && yarn install --mode update-lockfile"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
