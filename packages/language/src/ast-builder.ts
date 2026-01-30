@@ -3,6 +3,7 @@
  */
 
 import type {
+  EndpointDeclaration,
   GlobalBlock,
   NamespaceDeclaration,
   PageDeclaration,
@@ -26,6 +27,16 @@ export function createNamespace(name: string): NamespaceDeclaration {
     $type: "NamespaceDeclaration",
     name,
   } as NamespaceDeclaration;
+}
+
+/**
+ * Create an endpoint declaration
+ */
+export function createEndpoint(url: string): EndpointDeclaration {
+  return {
+    $type: "EndpointDeclaration",
+    url: `"${url}"`,
+  } as EndpointDeclaration;
 }
 
 /**
@@ -166,6 +177,7 @@ export function createPageDeclaration(
  */
 export function createURLSpecDocument(options: {
   namespace: string;
+  endpoint?: string;
   paramTypes?: ParamTypeDeclaration[];
   global?: GlobalBlock;
   pages?: PageDeclaration[];
@@ -173,6 +185,7 @@ export function createURLSpecDocument(options: {
   return {
     $type: "URLSpecDocument",
     namespace: createNamespace(options.namespace),
+    endpoint: options.endpoint ? createEndpoint(options.endpoint) : undefined,
     paramTypes: options.paramTypes || [],
     global: options.global,
     pages: options.pages || [],

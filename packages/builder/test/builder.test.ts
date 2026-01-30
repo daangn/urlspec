@@ -14,7 +14,7 @@ describe("URLSpec Builder", () => {
 
     const result = spec.toString();
 
-    expect(result).toContain('namespace "jobs";');
+    expect(result).toContain("namespace jobs;");
     expect(result).toContain("page list = /jobs {");
     expect(result).toContain("category?: string;");
   });
@@ -23,19 +23,19 @@ describe("URLSpec Builder", () => {
     const spec = new URLSpec();
 
     spec.setNamespace("jobs");
-    spec.addParamType("sort_order", ["recent", "popular", "trending"]);
+    spec.addParamType("sortOrder", ["recent", "popular", "trending"]);
     spec.addPage({
       name: "list",
       path: "/jobs",
-      parameters: [{ name: "sort", type: "sort_order" }],
+      parameters: [{ name: "sort", type: "sortOrder" }],
     });
 
     const result = spec.toString();
 
     expect(result).toContain(
-      'param sort_order = "recent" | "popular" | "trending";',
+      'param sortOrder = "recent" | "popular" | "trending";',
     );
-    expect(result).toContain("sort: sort_order;");
+    expect(result).toContain("sort: sortOrder;");
   });
 
   it("should build with global parameters", () => {
@@ -58,13 +58,31 @@ describe("URLSpec Builder", () => {
     expect(result).toContain("utm_source?: string;");
   });
 
+  it("should build with endpoint", () => {
+    const spec = new URLSpec();
+
+    spec.setNamespace("jobs");
+    spec.setEndpoint("https://api.example.com");
+    spec.addPage({
+      name: "list",
+      path: "/jobs",
+    });
+
+    const result = spec.toString();
+
+    expect(result).toContain("namespace jobs;");
+    expect(result).toContain('endpoint "https://api.example.com";');
+    expect(result).toContain("page list = /jobs {");
+  });
+
   it("should build complete example", () => {
     const spec = new URLSpec();
 
     spec.setNamespace("jobs");
+    spec.setEndpoint("https://api.example.com");
 
-    spec.addParamType("sort_order", ["recent", "popular", "trending"]);
-    spec.addParamType("job_status", ["active", "closed", "draft"]);
+    spec.addParamType("sortOrder", ["recent", "popular", "trending"]);
+    spec.addParamType("jobStatus", ["active", "closed", "draft"]);
 
     spec.addGlobalParam({
       name: "referrer",
@@ -77,7 +95,7 @@ describe("URLSpec Builder", () => {
       path: "/jobs",
       parameters: [
         { name: "category", type: "string", optional: true },
-        { name: "sort", type: "sort_order" },
+        { name: "sort", type: "sortOrder" },
       ],
     });
 
@@ -87,15 +105,16 @@ describe("URLSpec Builder", () => {
       parameters: [
         { name: "job_id", type: "string" },
         { name: "preview", type: ["true", "false"], optional: true },
-        { name: "status", type: "job_status", optional: true },
+        { name: "status", type: "jobStatus", optional: true },
       ],
     });
 
     const result = spec.toString();
 
-    expect(result).toContain('namespace "jobs";');
-    expect(result).toContain("param sort_order");
-    expect(result).toContain("param job_status");
+    expect(result).toContain("namespace jobs;");
+    expect(result).toContain('endpoint "https://api.example.com";');
+    expect(result).toContain("param sortOrder");
+    expect(result).toContain("param jobStatus");
     expect(result).toContain("global {");
     expect(result).toContain("page list");
     expect(result).toContain("page detail");
@@ -109,7 +128,7 @@ describe("URLSpec Builder", () => {
     const statuses = ["pending", "approved", "rejected"];
     for (const status of statuses) {
       spec.addPage({
-        name: `${status}_list`,
+        name: `${status}List`,
         path: `/jobs/${status}`,
         parameters: [{ name: "page", type: "string", optional: true }],
       });
@@ -117,9 +136,9 @@ describe("URLSpec Builder", () => {
 
     const result = spec.toString();
 
-    expect(result).toContain("page pending_list = /jobs/pending");
-    expect(result).toContain("page approved_list = /jobs/approved");
-    expect(result).toContain("page rejected_list = /jobs/rejected");
+    expect(result).toContain("page pendingList = /jobs/pending");
+    expect(result).toContain("page approvedList = /jobs/approved");
+    expect(result).toContain("page rejectedList = /jobs/rejected");
   });
 
   describe("Security - Path Traversal Prevention", () => {

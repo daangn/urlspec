@@ -10,6 +10,7 @@ export const URLSpecTerminals = {
     IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_]*/,
     STRING: /"([^"\\]|\\.)*"/,
     WS: /\s+/,
+    SL_COMMENT: /\/\/[^\n\r]*/,
 };
 
 export type URLSpecTerminalNames = keyof typeof URLSpecTerminals;
@@ -20,6 +21,7 @@ export type URLSpecKeywordNames =
     | ";"
     | "="
     | "?"
+    | "endpoint"
     | "global"
     | "namespace"
     | "page"
@@ -30,6 +32,21 @@ export type URLSpecKeywordNames =
     | "}";
 
 export type URLSpecTokenNames = URLSpecTerminalNames | URLSpecKeywordNames;
+
+export interface EndpointDeclaration extends langium.AstNode {
+    readonly $container: URLSpecDocument;
+    readonly $type: 'EndpointDeclaration';
+    url: string;
+}
+
+export const EndpointDeclaration = {
+    $type: 'EndpointDeclaration',
+    url: 'url'
+} as const;
+
+export function isEndpointDeclaration(item: unknown): item is EndpointDeclaration {
+    return reflection.isInstance(item, EndpointDeclaration.$type);
+}
 
 export interface GlobalBlock extends langium.AstNode {
     readonly $container: URLSpecDocument;
@@ -220,6 +237,7 @@ export function isUnionType(item: unknown): item is UnionType {
 
 export interface URLSpecDocument extends langium.AstNode {
     readonly $type: 'URLSpecDocument';
+    endpoint?: EndpointDeclaration;
     global?: GlobalBlock;
     namespace: NamespaceDeclaration;
     pages: Array<PageDeclaration>;
@@ -228,6 +246,7 @@ export interface URLSpecDocument extends langium.AstNode {
 
 export const URLSpecDocument = {
     $type: 'URLSpecDocument',
+    endpoint: 'endpoint',
     global: 'global',
     namespace: 'namespace',
     pages: 'pages',
@@ -239,6 +258,7 @@ export function isURLSpecDocument(item: unknown): item is URLSpecDocument {
 }
 
 export type URLSpecAstType = {
+    EndpointDeclaration: EndpointDeclaration
     GlobalBlock: GlobalBlock
     NamespaceDeclaration: NamespaceDeclaration
     PageDeclaration: PageDeclaration
@@ -256,6 +276,15 @@ export type URLSpecAstType = {
 
 export class URLSpecAstReflection extends langium.AbstractAstReflection {
     override readonly types = {
+        EndpointDeclaration: {
+            name: EndpointDeclaration.$type,
+            properties: {
+                url: {
+                    name: EndpointDeclaration.url
+                }
+            },
+            superTypes: []
+        },
         GlobalBlock: {
             name: GlobalBlock.$type,
             properties: {
@@ -377,6 +406,9 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
         URLSpecDocument: {
             name: URLSpecDocument.$type,
             properties: {
+                endpoint: {
+                    name: URLSpecDocument.endpoint
+                },
                 global: {
                     name: URLSpecDocument.global
                 },

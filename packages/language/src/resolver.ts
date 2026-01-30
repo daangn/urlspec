@@ -80,9 +80,12 @@ export function resolve(
 ): ResolvedURLSpec {
   const model = doc.parseResult.value;
 
-  // Extract namespace (remove quotes)
-  const namespace = model.namespace.name.replace(/^"|"$/g, "");
+  // Extract namespace
+  const namespace = model.namespace.name;
   const namespaceDescription = extractDescription(model.namespace);
+
+  // Extract endpoint (if exists, remove quotes from URL)
+  const endpoint = model.endpoint?.url.replace(/^"|"$/g, "");
 
   // Resolve param types
   const paramTypes: ResolvedParamType[] = model.paramTypes.map((pt) => ({
@@ -104,6 +107,7 @@ export function resolve(
   return {
     namespace,
     namespaceDescription,
+    endpoint,
     paramTypes,
     pages,
     global: globalParams.length > 0 ? globalParams : undefined,

@@ -5,6 +5,7 @@
 import { writeFileSync } from "node:fs";
 import { normalize, resolve } from "node:path";
 import {
+  createEndpoint,
   createGlobalBlock,
   createPageDeclaration,
   createParameterDeclaration,
@@ -41,6 +42,7 @@ export type {
 } from "@urlspec/language";
 // Re-export AST builder functions for convenience
 export {
+  createEndpoint,
   createGlobalBlock,
   createNamespace,
   createPageDeclaration,
@@ -74,6 +76,7 @@ export interface PageDefinition {
  */
 export class URLSpec {
   private namespace?: string;
+  private endpoint?: string;
   private paramTypes: Map<string, ParamType> = new Map();
   private globalParams: ParameterDefinition[] = [];
   private pages: PageDefinition[] = [];
@@ -83,6 +86,13 @@ export class URLSpec {
    */
   setNamespace(name: string): void {
     this.namespace = name;
+  }
+
+  /**
+   * Set the endpoint for the URLSpec
+   */
+  setEndpoint(url: string): void {
+    this.endpoint = url;
   }
 
   /**
@@ -140,6 +150,7 @@ export class URLSpec {
 
     return createURLSpecDocument({
       namespace: this.namespace,
+      endpoint: this.endpoint,
       paramTypes,
       global,
       pages,

@@ -1,0 +1,5 @@
+namespace jobs;
+
+page detail = /jobs/:job_id {
+  preview?: "true" | "false";
+}

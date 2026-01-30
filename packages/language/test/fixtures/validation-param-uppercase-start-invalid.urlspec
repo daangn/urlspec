@@ -1,0 +1,5 @@
+namespace jobs;
+
+page list = /jobs {
+  User_id: string;
+}

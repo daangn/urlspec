@@ -1,0 +1,13 @@
+namespace jobs;
+
+param sortOrder = "recent" | "popular" | "trending";
+
+page list = /jobs {
+  category?: string;
+  sort: sortOrder;
+}
+
+page detail = /jobs/:job_id {
+  job_id: string;
+  preview?: "true" | "false";
+}

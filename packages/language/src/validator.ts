@@ -5,23 +5,43 @@ import type { URLSpecServices } from "./services";
 /**
  * Validation checks for the URLSpec language.
  *
- * Note: Parameter naming (snake_case) is enforced at the grammar level
- * using the IDENTIFIER terminal, which would require complex lookahead
- * to differentiate. Instead, we validate at the AST level here.
+ * Note: Naming conventions (camelCase for namespace/page/param types, snake_case for parameters)
+ * are enforced at the AST level here.
  */
 export class URLSpecValidator {
   registerChecks(_services: URLSpecServices): ValidationChecks<URLSpecAstType> {
     const checks: ValidationChecks<URLSpecAstType> = {
+      NamespaceDeclaration: this.checkNamespaceNaming,
       ParameterDeclaration: this.checkParameterNaming,
+      ParamTypeDeclaration: this.checkParamTypeNaming,
       PageDeclaration: this.checkPageDeclaration,
     };
     return checks;
   }
 
   /**
+   * Validate namespace names follow camelCase convention.
+   */
+  checkNamespaceNaming = (
+    namespace: URLSpecAstType["NamespaceDeclaration"],
+    accept: ValidationAcceptor,
+  ): void => {
+    const camelCasePattern = /^[a-z][a-zA-Z0-9]*$/;
+
+    if (!camelCasePattern.test(namespace.name)) {
+      accept(
+        "error",
+        "Namespace must be in camelCase format (start with lowercase letter, followed by letters and numbers only).",
+        {
+          node: namespace,
+          property: "name",
+        },
+      );
+    }
+  };
+
+  /**
    * Validate parameter names follow snake_case convention.
-   * Parameter names must start with a lowercase letter and contain only
-   * lowercase letters, numbers, and underscores.
    */
   checkParameterNaming = (
     param: URLSpecAstType["ParameterDeclaration"],
@@ -42,13 +62,48 @@ export class URLSpecValidator {
   };
 
   /**
-   * Validate that all path parameters are declared in the parameter block.
-   * Path parameters (e.g., :job_id) must have a corresponding parameter declaration.
+   * Validate param type names follow camelCase convention.
+   */
+  checkParamTypeNaming = (
+    paramType: URLSpecAstType["ParamTypeDeclaration"],
+    accept: ValidationAcceptor,
+  ): void => {
+    const camelCasePattern = /^[a-z][a-zA-Z0-9]*$/;
+
+    if (!camelCasePattern.test(paramType.name)) {
+      accept(
+        "error",
+        "Param type names must be in camelCase format (start with lowercase letter, followed by letters and numbers only).",
+        {
+          node: paramType,
+          property: "name",
+        },
+      );
+    }
+  };
+
+  /**
+   * Validate page declarations:
+   * 1. Page names must be in camelCase
+   * 2. All path parameters must be declared in the parameter block
    */
   checkPageDeclaration = (
     page: URLSpecAstType["PageDeclaration"],
     accept: ValidationAcceptor,
   ): void => {
+    // Check page name is camelCase
+    const camelCasePattern = /^[a-z][a-zA-Z0-9]*$/;
+    if (!camelCasePattern.test(page.name)) {
+      accept(
+        "error",
+        "Page names must be in camelCase format (start with lowercase letter, followed by letters and numbers only).",
+        {
+          node: page,
+          property: "name",
+        },
+      );
+    }
+
     // Extract path parameter names from the path
     const pathParams = new Set<string>();
     for (const segment of page.path.segments) {

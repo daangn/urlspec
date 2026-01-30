@@ -1,42 +1,32 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { parse, resolve } from "../src/index.js";
+import { parseFile, resolve } from "../src/index.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+function fixture(name: string): string {
+  return join(__dirname, "fixtures", name);
+}
 
 describe("URLSpec Resolver", () => {
   it("should resolve basic spec", async () => {
-    const input = `
-namespace "jobs";
-
-page list = /jobs {
-  category?: string;
-}
-`;
-
-    const doc = await parse(input);
+    const doc = await parseFile(fixture("basic-page.urlspec"));
     const spec = resolve(doc);
 
     expect(spec.namespace).toBe("jobs");
-
     expect(spec.pages).toHaveLength(1);
     expect(spec.pages[0]?.name).toBe("list");
     expect(spec.pages[0]?.path).toBe("/jobs");
   });
 
   it("should resolve param types", async () => {
-    const input = `
-namespace "jobs";
-
-param sort_order = "recent" | "popular" | "trending";
-
-page list = /jobs {
-  sort: sort_order;
-}
-`;
-
-    const doc = await parse(input);
+    const doc = await parseFile(fixture("param-type-reference.urlspec"));
     const spec = resolve(doc);
 
     expect(spec.paramTypes).toHaveLength(1);
-    expect(spec.paramTypes[0]?.name).toBe("sort_order");
+    expect(spec.paramTypes[0]?.name).toBe("sortOrder");
     expect(spec.paramTypes[0]?.type).toEqual({
       kind: "union",
       values: ["recent", "popular", "trending"],
@@ -50,20 +40,7 @@ page list = /jobs {
   });
 
   it("should merge global parameters", async () => {
-    const input = `
-namespace "jobs";
-
-global {
-  utm_source?: string;
-  referrer?: string;
-}
-
-page list = /jobs {
-  category?: string;
-}
-`;
-
-    const doc = await parse(input);
+    const doc = await parseFile(fixture("global-merge.urlspec"));
     const spec = resolve(doc);
 
     expect(spec.global).toHaveLength(2);
@@ -81,16 +58,7 @@ page list = /jobs {
   });
 
   it("should resolve path segments", async () => {
-    const input = `
-namespace "jobs";
-
-page detail = /jobs/:job_id/comments/:comment_id {
-  job_id: string;
-  comment_id: string;
-}
-`;
-
-    const doc = await parse(input);
+    const doc = await parseFile(fixture("path-segments.urlspec"));
     const spec = resolve(doc);
 
     expect(spec.pages[0]?.path).toBe("/jobs/:job_id/comments/:comment_id");
@@ -103,18 +71,7 @@ page detail = /jobs/:job_id/comments/:comment_id {
   });
 
   it("should resolve all types correctly", async () => {
-    const input = `
-namespace "jobs";
-
-page test = /test {
-  str: string;
-  literal: "exact";
-  union: "a" | "b" | "c";
-  optional?: string;
-}
-`;
-
-    const doc = await parse(input);
+    const doc = await parseFile(fixture("all-types.urlspec"));
     const spec = resolve(doc);
 
     const params = spec.pages[0]?.parameters;
@@ -128,30 +85,7 @@ page test = /test {
   });
 
   it("should resolve complete example", async () => {
-    const input = `
-namespace "jobs";
-
-param sort_order = "recent" | "popular" | "trending";
-param job_status = "active" | "closed" | "draft";
-
-global {
-  referrer?: "jobs" | "hello";
-  utm_source?: string;
-}
-
-page list = /jobs {
-  category?: string;
-  sort: sort_order;
-}
-
-page detail = /jobs/:job_id {
-  job_id: string;
-  preview?: "true" | "false";
-  status?: job_status;
-}
-`;
-
-    const doc = await parse(input);
+    const doc = await parseFile(fixture("complete-example.urlspec"));
     const spec = resolve(doc);
 
     expect(spec.namespace).toBe("jobs");
@@ -162,5 +96,73 @@ page detail = /jobs/:job_id {
     // Each page should have global + page params
     expect(spec.pages[0]?.parameters).toHaveLength(4); // 2 global + 2 page
     expect(spec.pages[1]?.parameters).toHaveLength(5); // 2 global + 3 page
+  });
+
+  it("should extract descriptions from comments", async () => {
+    const doc = await parseFile(fixture("with-descriptions.urlspec"));
+    const spec = resolve(doc);
+
+    // Check namespace description
+    expect(spec.namespaceDescription).toBe(
+      "Job listing and detail pages\nThis namespace contains all job-related URL specifications",
+    );
+
+    // Check param type description
+    expect(spec.paramTypes[0]?.description).toBe(
+      "Sort order for job listings\nUsed to determine how jobs are displayed",
+    );
+
+    // Check global parameter descriptions
+    expect(spec.global?.[0]?.description).toBe(
+      "Referrer source\nIndicates where the user came from",
+    );
+    expect(spec.global?.[1]?.description).toBe("UTM source parameter");
+
+    // Check page descriptions
+    expect(spec.pages[0]?.description).toBe(
+      "Job listings page\nDisplays a list of all available jobs",
+    );
+    expect(spec.pages[1]?.description).toBe(
+      "Job detail page\nShows detailed information about a specific job",
+    );
+
+    // Check parameter descriptions
+    const listPageParams = spec.pages[0]?.parameters;
+    // Skip global params (first 2), check page params
+    expect(listPageParams?.[2]?.description).toBe("Job category filter");
+    expect(listPageParams?.[3]?.description).toBe("Sort order");
+
+    const detailPageParams = spec.pages[1]?.parameters;
+    // Skip global params (first 2), check page params
+    expect(detailPageParams?.[2]?.description).toBe("Unique job identifier");
+    expect(detailPageParams?.[3]?.description).toBe("Preview mode flag");
+  });
+
+  it("should parse and resolve example.urlspec file", async () => {
+    const doc = await parseFile(fixture("example.urlspec"));
+    expect(doc.parseResult.lexerErrors).toHaveLength(0);
+    expect(doc.parseResult.parserErrors).toHaveLength(0);
+
+    const spec = resolve(doc);
+
+    // Verify basic structure
+    expect(spec.namespace).toBe("jobs");
+    expect(spec.paramTypes).toHaveLength(2);
+    expect(spec.pages).toHaveLength(2);
+
+    // Verify descriptions are extracted
+    expect(spec.namespaceDescription).toBeDefined();
+    expect(spec.paramTypes[0]?.description).toBeDefined();
+    expect(spec.pages[0]?.description).toBeDefined();
+    expect(spec.pages[1]?.description).toBeDefined();
+
+    // Verify specific descriptions
+    expect(spec.namespaceDescription).toContain("Job listing and detail pages");
+    expect(spec.paramTypes[0]?.description).toContain(
+      "Sort order for job listings",
+    );
+    expect(spec.paramTypes[1]?.description).toContain(
+      "Status of a job posting",
+    );
   });
 });

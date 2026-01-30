@@ -4,7 +4,10 @@
     {
       "id": "urlspec",
       "grammar": "src/urlspec.langium",
-      "fileExtensions": [".urlspec"]
+      "fileExtensions": [".urlspec"],
+      "textMate": {
+        "out": "syntaxes/urlspec.tmLanguage.json"
+      }
     }
   ],
   "out": "src/__generated__"

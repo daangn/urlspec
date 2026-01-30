@@ -1,0 +1,5 @@
+namespace test;
+
+page home = /home {
+  query?: string;
+}
