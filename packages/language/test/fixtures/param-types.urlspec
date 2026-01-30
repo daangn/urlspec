@@ -1,0 +1,4 @@
+namespace jobs;
+
+param sortOrder = "recent" | "popular" | "trending";
+param jobStatus = "active" | "closed" | "draft";

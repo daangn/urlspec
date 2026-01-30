@@ -1,0 +1,5 @@
+namespace test;
+
+page detail = /items/:item_id {
+  item_id: string;
+}

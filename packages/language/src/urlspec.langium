@@ -2,12 +2,16 @@ grammar URLSpec
 
 entry URLSpecDocument:
     namespace=NamespaceDeclaration
+    (endpoint=EndpointDeclaration)?
     (paramTypes+=ParamTypeDeclaration)*
     (global=GlobalBlock)?
     (pages+=PageDeclaration)*;
 
 NamespaceDeclaration:
-    'namespace' name=STRING ';';
+    'namespace' name=IDENTIFIER ';';
+
+EndpointDeclaration:
+    'endpoint' url=STRING ';';
 
 ParamTypeDeclaration:
     'param' name=IDENTIFIER '=' type=Type ';';
@@ -51,5 +55,5 @@ terminal STRING:
 hidden terminal WS:
     /\s+/;
 
-terminal SL_COMMENT:
+hidden terminal SL_COMMENT:
     /\/\/[^\n\r]*/;

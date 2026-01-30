@@ -10,7 +10,7 @@
     },
     {
       "name": "keyword.control.urlspec",
-      "match": "\\b(global|namespace|page|param|string)\\b"
+      "match": "\\b(endpoint|global|namespace|page|param|string)\\b"
     },
     {
       "name": "string.quoted.double.urlspec",

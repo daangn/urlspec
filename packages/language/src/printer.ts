@@ -19,7 +19,13 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
   const lines: string[] = [];
 
   // Namespace
-  lines.push(`namespace "${model.namespace.name}";`);
+  lines.push(`namespace ${model.namespace.name};`);
+
+  // Endpoint
+  if (model.endpoint) {
+    lines.push(`endpoint ${model.endpoint.url};`);
+  }
+
   lines.push("");
 
   // Param types

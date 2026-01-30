@@ -1,0 +1,6 @@
+namespace jobs;
+
+global {
+  utmSource?: string;
+  isPreview: "true" | "false";
+}

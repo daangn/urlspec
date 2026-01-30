@@ -1,0 +1,6 @@
+namespace jobs;
+
+page list = /jobs {
+  UserId: string;
+  SortOrder?: string;
+}

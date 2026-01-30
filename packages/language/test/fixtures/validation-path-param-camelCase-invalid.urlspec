@@ -1,0 +1,5 @@
+namespace jobs;
+
+page detail = /jobs/:jobId {
+  jobId: string;
+}
