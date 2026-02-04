@@ -31,7 +31,7 @@ describe("URLSpec Printer", () => {
     const doc = await parseFile(fixture("printer-basic.urlspec"));
     const printed = print(doc);
 
-    expect(printed).toContain("namespace test;");
+    expect(printed).not.toContain("namespace");
     expect(printed).toContain("page home = /home {");
     expect(printed).toContain("query?: string;");
   });

@@ -1,13 +1,9 @@
-// Job listing and detail pages
-// This namespace contains all job-related URL specifications
-namespace "jobs";
-
 // Sort order for job listings
 // Used to determine how jobs are displayed
-param sort_order = "recent" | "popular" | "trending";
+param sortOrder = "recent" | "popular" | "trending";
 
 // Status of a job posting
-param job_status = "active" | "closed" | "draft";
+param jobStatus = "active" | "closed" | "draft";
 
 global {
   // Referrer source
@@ -25,7 +21,7 @@ page list = /jobs {
   category?: string;
 
   // Sort order
-  sort: sort_order;
+  sort: sortOrder;
 }
 
 // Job detail page
@@ -38,5 +34,5 @@ page detail = /jobs/:job_id {
   preview?: "true" | "false";
 
   // Job status filter
-  status?: job_status;
+  status?: jobStatus;
 }

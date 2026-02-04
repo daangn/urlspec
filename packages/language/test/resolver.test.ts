@@ -15,7 +15,6 @@ describe("URLSpec Resolver", () => {
     const doc = await parseFile(fixture("basic-page.urlspec"));
     const spec = resolve(doc);
 
-    expect(spec.namespace).toBe("jobs");
     expect(spec.pages).toHaveLength(1);
     expect(spec.pages[0]?.name).toBe("list");
     expect(spec.pages[0]?.path).toBe("/jobs");
@@ -88,7 +87,6 @@ describe("URLSpec Resolver", () => {
     const doc = await parseFile(fixture("complete-example.urlspec"));
     const spec = resolve(doc);
 
-    expect(spec.namespace).toBe("jobs");
     expect(spec.paramTypes).toHaveLength(2);
     expect(spec.global).toHaveLength(2);
     expect(spec.pages).toHaveLength(2);
@@ -101,11 +99,6 @@ describe("URLSpec Resolver", () => {
   it("should extract descriptions from comments", async () => {
     const doc = await parseFile(fixture("with-descriptions.urlspec"));
     const spec = resolve(doc);
-
-    // Check namespace description
-    expect(spec.namespaceDescription).toBe(
-      "Job listing and detail pages\nThis namespace contains all job-related URL specifications",
-    );
 
     // Check param type description
     expect(spec.paramTypes[0]?.description).toBe(
@@ -146,18 +139,15 @@ describe("URLSpec Resolver", () => {
     const spec = resolve(doc);
 
     // Verify basic structure
-    expect(spec.namespace).toBe("jobs");
     expect(spec.paramTypes).toHaveLength(2);
     expect(spec.pages).toHaveLength(2);
 
     // Verify descriptions are extracted
-    expect(spec.namespaceDescription).toBeDefined();
     expect(spec.paramTypes[0]?.description).toBeDefined();
     expect(spec.pages[0]?.description).toBeDefined();
     expect(spec.pages[1]?.description).toBeDefined();
 
     // Verify specific descriptions
-    expect(spec.namespaceDescription).toContain("Job listing and detail pages");
     expect(spec.paramTypes[0]?.description).toContain(
       "Sort order for job listings",
     );

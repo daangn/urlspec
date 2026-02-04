@@ -21,9 +21,7 @@ export type URLSpecKeywordNames =
     | ";"
     | "="
     | "?"
-    | "endpoint"
     | "global"
-    | "namespace"
     | "page"
     | "param"
     | "string"
@@ -32,21 +30,6 @@ export type URLSpecKeywordNames =
     | "}";
 
 export type URLSpecTokenNames = URLSpecTerminalNames | URLSpecKeywordNames;
-
-export interface EndpointDeclaration extends langium.AstNode {
-    readonly $container: URLSpecDocument;
-    readonly $type: 'EndpointDeclaration';
-    url: string;
-}
-
-export const EndpointDeclaration = {
-    $type: 'EndpointDeclaration',
-    url: 'url'
-} as const;
-
-export function isEndpointDeclaration(item: unknown): item is EndpointDeclaration {
-    return reflection.isInstance(item, EndpointDeclaration.$type);
-}
 
 export interface GlobalBlock extends langium.AstNode {
     readonly $container: URLSpecDocument;
@@ -61,21 +44,6 @@ export const GlobalBlock = {
 
 export function isGlobalBlock(item: unknown): item is GlobalBlock {
     return reflection.isInstance(item, GlobalBlock.$type);
-}
-
-export interface NamespaceDeclaration extends langium.AstNode {
-    readonly $container: URLSpecDocument;
-    readonly $type: 'NamespaceDeclaration';
-    name: string;
-}
-
-export const NamespaceDeclaration = {
-    $type: 'NamespaceDeclaration',
-    name: 'name'
-} as const;
-
-export function isNamespaceDeclaration(item: unknown): item is NamespaceDeclaration {
-    return reflection.isInstance(item, NamespaceDeclaration.$type);
 }
 
 export interface PageDeclaration extends langium.AstNode {
@@ -237,18 +205,14 @@ export function isUnionType(item: unknown): item is UnionType {
 
 export interface URLSpecDocument extends langium.AstNode {
     readonly $type: 'URLSpecDocument';
-    endpoint?: EndpointDeclaration;
     global?: GlobalBlock;
-    namespace: NamespaceDeclaration;
     pages: Array<PageDeclaration>;
     paramTypes: Array<ParamTypeDeclaration>;
 }
 
 export const URLSpecDocument = {
     $type: 'URLSpecDocument',
-    endpoint: 'endpoint',
     global: 'global',
-    namespace: 'namespace',
     pages: 'pages',
     paramTypes: 'paramTypes'
 } as const;
@@ -258,9 +222,7 @@ export function isURLSpecDocument(item: unknown): item is URLSpecDocument {
 }
 
 export type URLSpecAstType = {
-    EndpointDeclaration: EndpointDeclaration
     GlobalBlock: GlobalBlock
-    NamespaceDeclaration: NamespaceDeclaration
     PageDeclaration: PageDeclaration
     ParamTypeDeclaration: ParamTypeDeclaration
     ParameterDeclaration: ParameterDeclaration
@@ -276,30 +238,12 @@ export type URLSpecAstType = {
 
 export class URLSpecAstReflection extends langium.AbstractAstReflection {
     override readonly types = {
-        EndpointDeclaration: {
-            name: EndpointDeclaration.$type,
-            properties: {
-                url: {
-                    name: EndpointDeclaration.url
-                }
-            },
-            superTypes: []
-        },
         GlobalBlock: {
             name: GlobalBlock.$type,
             properties: {
                 parameters: {
                     name: GlobalBlock.parameters,
                     defaultValue: []
-                }
-            },
-            superTypes: []
-        },
-        NamespaceDeclaration: {
-            name: NamespaceDeclaration.$type,
-            properties: {
-                name: {
-                    name: NamespaceDeclaration.name
                 }
             },
             superTypes: []
@@ -406,14 +350,8 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
         URLSpecDocument: {
             name: URLSpecDocument.$type,
             properties: {
-                endpoint: {
-                    name: URLSpecDocument.endpoint
-                },
                 global: {
                     name: URLSpecDocument.global
-                },
-                namespace: {
-                    name: URLSpecDocument.namespace
                 },
                 pages: {
                     name: URLSpecDocument.pages,
