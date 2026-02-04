@@ -5,7 +5,6 @@ describe("URLSpec Builder", () => {
   it("should build basic spec", () => {
     const spec = new URLSpec();
 
-    spec.setNamespace("jobs");
     spec.addPage({
       name: "list",
       path: "/jobs",
@@ -14,7 +13,6 @@ describe("URLSpec Builder", () => {
 
     const result = spec.toString();
 
-    expect(result).toContain("namespace jobs;");
     expect(result).toContain("page list = /jobs {");
     expect(result).toContain("category?: string;");
   });
@@ -22,7 +20,6 @@ describe("URLSpec Builder", () => {
   it("should build with param types", () => {
     const spec = new URLSpec();
 
-    spec.setNamespace("jobs");
     spec.addParamType("sortOrder", ["recent", "popular", "trending"]);
     spec.addPage({
       name: "list",
@@ -41,7 +38,6 @@ describe("URLSpec Builder", () => {
   it("should build with global parameters", () => {
     const spec = new URLSpec();
 
-    spec.setNamespace("jobs");
     spec.addGlobalParam({
       name: "utm_source",
       type: "string",
@@ -58,11 +54,9 @@ describe("URLSpec Builder", () => {
     expect(result).toContain("utm_source?: string;");
   });
 
-  it("should build with endpoint", () => {
+  it("should build without namespace and endpoint", () => {
     const spec = new URLSpec();
 
-    spec.setNamespace("jobs");
-    spec.setEndpoint("https://api.example.com");
     spec.addPage({
       name: "list",
       path: "/jobs",
@@ -70,16 +64,13 @@ describe("URLSpec Builder", () => {
 
     const result = spec.toString();
 
-    expect(result).toContain("namespace jobs;");
-    expect(result).toContain('endpoint "https://api.example.com";');
+    expect(result).not.toContain("namespace");
+    expect(result).not.toContain("endpoint");
     expect(result).toContain("page list = /jobs {");
   });
 
   it("should build complete example", () => {
     const spec = new URLSpec();
-
-    spec.setNamespace("jobs");
-    spec.setEndpoint("https://api.example.com");
 
     spec.addParamType("sortOrder", ["recent", "popular", "trending"]);
     spec.addParamType("jobStatus", ["active", "closed", "draft"]);
@@ -111,8 +102,6 @@ describe("URLSpec Builder", () => {
 
     const result = spec.toString();
 
-    expect(result).toContain("namespace jobs;");
-    expect(result).toContain('endpoint "https://api.example.com";');
     expect(result).toContain("param sortOrder");
     expect(result).toContain("param jobStatus");
     expect(result).toContain("global {");
@@ -122,8 +111,6 @@ describe("URLSpec Builder", () => {
 
   it("should support dynamic page generation", () => {
     const spec = new URLSpec();
-
-    spec.setNamespace("jobs");
 
     const statuses = ["pending", "approved", "rejected"];
     for (const status of statuses) {
@@ -144,7 +131,6 @@ describe("URLSpec Builder", () => {
   describe("Security - Path Traversal Prevention", () => {
     it("should reject paths with .. traversal sequences", async () => {
       const spec = new URLSpec();
-      spec.setNamespace("test");
 
       await expect(spec.writeFile("../../../etc/passwd")).rejects.toThrow(
         "path traversal detected",
@@ -153,7 +139,6 @@ describe("URLSpec Builder", () => {
 
     it("should reject paths to sensitive system directories", async () => {
       const spec = new URLSpec();
-      spec.setNamespace("test");
 
       await expect(spec.writeFile("/etc/hosts")).rejects.toThrow(
         "cannot write to sensitive directory",
@@ -174,7 +159,6 @@ describe("URLSpec Builder", () => {
 
     it("should reject paths outside allowed base directory", async () => {
       const spec = new URLSpec();
-      spec.setNamespace("test");
 
       await expect(
         spec.writeFile("/tmp/test.urlspec", { allowedBaseDir: "/home/user" }),
@@ -183,7 +167,6 @@ describe("URLSpec Builder", () => {
 
     it("should allow valid paths within allowed base directory", async () => {
       const spec = new URLSpec();
-      spec.setNamespace("test");
       spec.addPage({ name: "home", path: "/" });
 
       // This should not throw (but will fail to write without proper setup)
@@ -196,7 +179,6 @@ describe("URLSpec Builder", () => {
 
     it("should normalize paths before validation", async () => {
       const spec = new URLSpec();
-      spec.setNamespace("test");
 
       // These should be rejected even with path obfuscation
       await expect(spec.writeFile("/tmp/../etc/passwd")).rejects.toThrow();

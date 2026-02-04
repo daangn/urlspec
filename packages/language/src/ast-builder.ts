@@ -3,9 +3,7 @@
  */
 
 import type {
-  EndpointDeclaration,
   GlobalBlock,
-  NamespaceDeclaration,
   PageDeclaration,
   ParameterDeclaration,
   ParamTypeDeclaration,
@@ -18,26 +16,6 @@ import type {
   UnionType,
   URLSpecDocument,
 } from "./__generated__/ast";
-
-/**
- * Create a namespace declaration
- */
-export function createNamespace(name: string): NamespaceDeclaration {
-  return {
-    $type: "NamespaceDeclaration",
-    name,
-  } as NamespaceDeclaration;
-}
-
-/**
- * Create an endpoint declaration
- */
-export function createEndpoint(url: string): EndpointDeclaration {
-  return {
-    $type: "EndpointDeclaration",
-    url: `"${url}"`,
-  } as EndpointDeclaration;
-}
 
 /**
  * Create a string keyword type
@@ -176,16 +154,12 @@ export function createPageDeclaration(
  * Create a complete URLSpec document
  */
 export function createURLSpecDocument(options: {
-  namespace: string;
-  endpoint?: string;
   paramTypes?: ParamTypeDeclaration[];
   global?: GlobalBlock;
   pages?: PageDeclaration[];
 }): URLSpecDocument {
   return {
     $type: "URLSpecDocument",
-    namespace: createNamespace(options.namespace),
-    endpoint: options.endpoint ? createEndpoint(options.endpoint) : undefined,
     paramTypes: options.paramTypes || [],
     global: options.global,
     pages: options.pages || [],

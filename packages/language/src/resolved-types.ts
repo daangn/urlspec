@@ -4,9 +4,6 @@
  */
 
 export interface ResolvedURLSpec {
-  namespace: string;
-  namespaceDescription?: string;
-  endpoint?: string;
   paramTypes: ResolvedParamType[];
   pages: ResolvedPage[];
   global?: ResolvedParameter[] | undefined;

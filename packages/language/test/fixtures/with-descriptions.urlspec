@@ -1,7 +1,3 @@
-// Job listing and detail pages
-// This namespace contains all job-related URL specifications
-namespace jobs;
-
 // Sort order for job listings
 // Used to determine how jobs are displayed
 param sortOrder = "recent" | "popular" | "trending";

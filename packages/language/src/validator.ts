@@ -5,40 +5,18 @@ import type { URLSpecServices } from "./services";
 /**
  * Validation checks for the URLSpec language.
  *
- * Note: Naming conventions (camelCase for namespace/page/param types, snake_case for parameters)
+ * Note: Naming conventions (camelCase for page/param types, snake_case for parameters)
  * are enforced at the AST level here.
  */
 export class URLSpecValidator {
   registerChecks(_services: URLSpecServices): ValidationChecks<URLSpecAstType> {
     const checks: ValidationChecks<URLSpecAstType> = {
-      NamespaceDeclaration: this.checkNamespaceNaming,
       ParameterDeclaration: this.checkParameterNaming,
       ParamTypeDeclaration: this.checkParamTypeNaming,
       PageDeclaration: this.checkPageDeclaration,
     };
     return checks;
   }
-
-  /**
-   * Validate namespace names follow camelCase convention.
-   */
-  checkNamespaceNaming = (
-    namespace: URLSpecAstType["NamespaceDeclaration"],
-    accept: ValidationAcceptor,
-  ): void => {
-    const camelCasePattern = /^[a-z][a-zA-Z0-9]*$/;
-
-    if (!camelCasePattern.test(namespace.name)) {
-      accept(
-        "error",
-        "Namespace must be in camelCase format (start with lowercase letter, followed by letters and numbers only).",
-        {
-          node: namespace,
-          property: "name",
-        },
-      );
-    }
-  };
 
   /**
    * Validate parameter names follow snake_case convention.

@@ -1,17 +1,9 @@
 grammar URLSpec
 
 entry URLSpecDocument:
-    namespace=NamespaceDeclaration
-    (endpoint=EndpointDeclaration)?
     (paramTypes+=ParamTypeDeclaration)*
     (global=GlobalBlock)?
     (pages+=PageDeclaration)*;
-
-NamespaceDeclaration:
-    'namespace' name=IDENTIFIER ';';
-
-EndpointDeclaration:
-    'endpoint' url=STRING ';';
 
 ParamTypeDeclaration:
     'param' name=IDENTIFIER '=' type=Type ';';

@@ -11,13 +11,13 @@ function fixture(name: string): string {
 }
 
 describe("URLSpec Parser", () => {
-  it("should parse basic namespace", async () => {
-    const doc = await parseFile(fixture("basic-namespace.urlspec"));
+  it("should parse basic page", async () => {
+    const doc = await parseFile(fixture("basic-page.urlspec"));
     expect(doc.parseResult.lexerErrors).toHaveLength(0);
     expect(doc.parseResult.parserErrors).toHaveLength(0);
 
     const model = doc.parseResult.value;
-    expect(model.namespace.name).toBe("jobs");
+    expect(model.pages).toHaveLength(1);
   });
 
   it("should parse param types", async () => {
@@ -68,7 +68,6 @@ describe("URLSpec Parser", () => {
     expect(doc.parseResult.parserErrors).toHaveLength(0);
 
     const model = doc.parseResult.value;
-    expect(model.namespace.name).toBe("jobs");
     expect(model.paramTypes).toHaveLength(2);
     expect(model.global).toBeDefined();
     expect(model.pages).toHaveLength(2);
@@ -80,7 +79,6 @@ describe("URLSpec Parser", () => {
     expect(doc.parseResult.parserErrors).toHaveLength(0);
 
     const model = doc.parseResult.value;
-    expect(model.namespace.name).toBe("jobs");
     expect(model.paramTypes).toHaveLength(1);
     expect(model.pages).toHaveLength(1);
   });
