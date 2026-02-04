@@ -1,5 +1,16 @@
 # @urlspec/builder
 
+## 0.3.0
+
+### Minor Changes
+
+- 1d15502: BREAKING CHANGES: remove namespace, endpoint spec
+
+### Patch Changes
+
+- Updated dependencies [1d15502]
+  - @urlspec/language@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
