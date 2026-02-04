@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.3.0
+
+### Minor Changes
+
+- 1d15502: BREAKING CHANGES: remove namespace, endpoint spec
+
 ## 0.2.0
 
 ### Minor Changes
