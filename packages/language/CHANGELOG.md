@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.4.0
+
+### Minor Changes
+
+- 7ba1f95: feat: update language spec
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @urlspec/builder
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [7ba1f95]
+  - @urlspec/language@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
