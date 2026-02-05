@@ -80,7 +80,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@14"
+                "$ref": "#/rules@17"
               },
               "arguments": []
             }
@@ -165,7 +165,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@14"
+                "$ref": "#/rules@17"
               },
               "arguments": []
             }
@@ -217,17 +217,34 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
       "$type": "ParserRule",
       "name": "Path",
       "definition": {
-        "$type": "Assignment",
-        "feature": "segments",
-        "operator": "+=",
-        "terminal": {
-          "$type": "RuleCall",
-          "rule": {
-            "$ref": "#/rules@5"
+        "$type": "Alternatives",
+        "elements": [
+          {
+            "$type": "Assignment",
+            "feature": "root",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@16"
+              },
+              "arguments": []
+            }
           },
-          "arguments": []
-        },
-        "cardinality": "+"
+          {
+            "$type": "Assignment",
+            "feature": "segments",
+            "operator": "+=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@5"
+              },
+              "arguments": []
+            },
+            "cardinality": "+"
+          }
+        ]
       },
       "entry": false,
       "fragment": false,
@@ -246,7 +263,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@13"
+                "$ref": "#/rules@14"
               },
               "arguments": []
             }
@@ -255,8 +272,11 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "$type": "Group",
             "elements": [
               {
-                "$type": "Keyword",
-                "value": "/:"
+                "$type": "RuleCall",
+                "rule": {
+                  "$ref": "#/rules@15"
+                },
+                "arguments": []
               },
               {
                 "$type": "Assignment",
@@ -342,7 +362,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@14"
+              "$ref": "#/rules@17"
             },
             "arguments": []
           },
@@ -418,7 +438,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
         "terminal": {
           "$type": "RuleCall",
           "rule": {
-            "$ref": "#/rules@15"
+            "$ref": "#/rules@18"
           },
           "arguments": []
         }
@@ -504,7 +524,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           "terminal": {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@14"
+              "$ref": "#/rules@17"
             },
             "arguments": []
           },
@@ -518,10 +538,49 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
     },
     {
       "$type": "TerminalRule",
+      "hidden": true,
+      "name": "SL_COMMENT",
+      "definition": {
+        "$type": "RegexToken",
+        "regex": "/\\\\/\\\\/[^\\\\n\\\\r]*/",
+        "parenthesized": false
+      },
+      "fragment": false
+    },
+    {
+      "$type": "TerminalRule",
       "name": "PATH_SEGMENT",
       "definition": {
         "$type": "RegexToken",
         "regex": "/\\\\/[a-zA-Z0-9_-]+/",
+        "parenthesized": false
+      },
+      "fragment": false,
+      "hidden": false
+    },
+    {
+      "$type": "TerminalRule",
+      "name": "PARAM_PREFIX",
+      "definition": {
+        "$type": "CharacterRange",
+        "left": {
+          "$type": "Keyword",
+          "value": "/:"
+        },
+        "parenthesized": false
+      },
+      "fragment": false,
+      "hidden": false
+    },
+    {
+      "$type": "TerminalRule",
+      "name": "ROOT_PATH",
+      "definition": {
+        "$type": "CharacterRange",
+        "left": {
+          "$type": "Keyword",
+          "value": "/"
+        },
         "parenthesized": false
       },
       "fragment": false,
@@ -556,17 +615,6 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
       "definition": {
         "$type": "RegexToken",
         "regex": "/\\\\s+/",
-        "parenthesized": false
-      },
-      "fragment": false
-    },
-    {
-      "$type": "TerminalRule",
-      "hidden": true,
-      "name": "SL_COMMENT",
-      "definition": {
-        "$type": "RegexToken",
-        "regex": "/\\\\/\\\\/[^\\\\n\\\\r]*/",
         "parenthesized": false
       },
       "fragment": false

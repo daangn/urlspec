@@ -48,7 +48,9 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
 function printPage(page: PageDeclaration): string {
   const lines: string[] = [];
 
-  const path = page.path.segments.map(printPathSegment).join("");
+  const path = page.path.root
+    ? "/"
+    : page.path.segments.map(printPathSegment).join("");
   lines.push(`page ${page.name} = ${path} {`);
 
   for (const param of page.parameters) {

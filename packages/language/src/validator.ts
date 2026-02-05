@@ -62,9 +62,11 @@ export class URLSpecValidator {
 
     // Extract path parameter names from the path
     const pathParams = new Set<string>();
-    for (const segment of page.path.segments) {
-      if (segment.parameter) {
-        pathParams.add(segment.parameter);
+    if (page.path.segments) {
+      for (const segment of page.path.segments) {
+        if (segment.parameter) {
+          pathParams.add(segment.parameter);
+        }
       }
     }
 

@@ -15,10 +15,10 @@ PageDeclaration:
     'page' name=IDENTIFIER '=' path=Path '{' (parameters+=ParameterDeclaration)* '}';
 
 Path:
-    segments+=PathSegment+;
+    root=ROOT_PATH | segments+=PathSegment+;
 
 PathSegment:
-    static=PATH_SEGMENT | '/:' parameter=ParameterName;
+    static=PATH_SEGMENT | PARAM_PREFIX parameter=ParameterName;
 
 ParameterDeclaration:
     name=ParameterName optional='?'? ':' type=Type ';';
@@ -41,8 +41,17 @@ UnionType:
 TypeReference:
     ref=[ParamTypeDeclaration:IDENTIFIER];
 
+hidden terminal SL_COMMENT:
+    /\/\/[^\n\r]*/;
+
 terminal PATH_SEGMENT:
     /\/[a-zA-Z0-9_-]+/;
+
+terminal PARAM_PREFIX:
+    '/:';
+
+terminal ROOT_PATH:
+    '/';
 
 terminal IDENTIFIER:
     /[a-zA-Z][a-zA-Z0-9_]*/;
@@ -52,6 +61,3 @@ terminal STRING:
 
 hidden terminal WS:
     /\s+/;
-
-hidden terminal SL_COMMENT:
-    /\/\/[^\n\r]*/;

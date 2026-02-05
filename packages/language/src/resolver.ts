@@ -108,6 +108,20 @@ function resolvePage(
   page: PageDeclaration,
   globalParams: ResolvedParameter[],
 ): ResolvedPage {
+  // Handle root path
+  if (page.path.root) {
+    return {
+      name: page.name,
+      path: "/",
+      pathSegments: [],
+      parameters: [
+        ...globalParams,
+        ...page.parameters.map((p) => resolveParameter(p, "page")),
+      ],
+      description: extractDescription(page),
+    };
+  }
+
   // Parse path segments
   const pathSegments: ResolvedPathSegment[] = page.path.segments.map((seg) => {
     if (seg.static) {

@@ -106,8 +106,18 @@ export function createPathSegment(
 /**
  * Parse a path string into segments
  * Example: "/jobs/:job_id" -> [static("/jobs"), parameter("job_id")]
+ * Example: "/" -> root path
  */
 export function parsePath(pathStr: string): Path {
+  // Handle root path
+  if (pathStr === "/") {
+    return {
+      $type: "Path",
+      root: "/",
+      segments: [],
+    } as Path;
+  }
+
   const parts = pathStr.split("/").filter((p) => p.length > 0);
   const segments: PathSegment[] = parts.map((part) => {
     if (part.startsWith(":")) {

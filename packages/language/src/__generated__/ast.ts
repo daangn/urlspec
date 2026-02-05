@@ -7,17 +7,18 @@
 import * as langium from 'langium';
 
 export const URLSpecTerminals = {
+    SL_COMMENT: /\/\/[^\n\r]*/,
     PATH_SEGMENT: /\/[a-zA-Z0-9_-]+/,
+    PARAM_PREFIX: /\/:/,
+    ROOT_PATH: /\//,
     IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_]*/,
     STRING: /"([^"\\]|\\.)*"/,
     WS: /\s+/,
-    SL_COMMENT: /\/\/[^\n\r]*/,
 };
 
 export type URLSpecTerminalNames = keyof typeof URLSpecTerminals;
 
 export type URLSpecKeywordNames =
-    | "/:"
     | ":"
     | ";"
     | "="
@@ -111,11 +112,13 @@ export function isParamTypeDeclaration(item: unknown): item is ParamTypeDeclarat
 export interface Path extends langium.AstNode {
     readonly $container: PageDeclaration;
     readonly $type: 'Path';
+    root?: string;
     segments: Array<PathSegment>;
 }
 
 export const Path = {
     $type: 'Path',
+    root: 'root',
     segments: 'segments'
 } as const;
 
@@ -301,6 +304,9 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
         Path: {
             name: Path.$type,
             properties: {
+                root: {
+                    name: Path.root
+                },
                 segments: {
                     name: Path.segments,
                     defaultValue: []

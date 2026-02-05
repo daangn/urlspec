@@ -60,3 +60,15 @@ describe("URLSpec New Features", () => {
     expect(detailPage?.parameters[0]?.name).toBe("page");
   });
 });
+
+it("should parse root path /", async () => {
+  const doc = await parseFile(fixture("root-path.urlspec"));
+  expect(doc.parseResult.lexerErrors).toHaveLength(0);
+  expect(doc.parseResult.parserErrors).toHaveLength(0);
+
+  const model = doc.parseResult.value;
+  expect(model.pages).toHaveLength(1);
+  expect(model.pages[0]?.name).toBe("home");
+  expect(model.pages[0]?.path.root).toBe("/");
+  expect(model.pages[0]?.path.segments).toEqual([]);
+});
