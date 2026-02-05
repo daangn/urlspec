@@ -18,10 +18,13 @@ Path:
     segments+=PathSegment+;
 
 PathSegment:
-    '/' (static=PATH_SEGMENT_WITH_HYPHEN | static=IDENTIFIER | ':' parameter=IDENTIFIER);
+    static=PATH_SEGMENT | '/:' parameter=ParameterName;
 
 ParameterDeclaration:
-    name=IDENTIFIER optional='?'? ':' type=Type ';';
+    name=ParameterName optional='?'? ':' type=Type ';';
+
+ParameterName returns string:
+    IDENTIFIER | 'page' | 'param' | 'global' | 'string';
 
 Type:
     UnionType | StringLiteralType | TypeReference | StringKeyword;
@@ -38,8 +41,8 @@ UnionType:
 TypeReference:
     ref=[ParamTypeDeclaration:IDENTIFIER];
 
-terminal PATH_SEGMENT_WITH_HYPHEN:
-    /[a-zA-Z][a-zA-Z0-9_-]*-[a-zA-Z0-9_-]*/;
+terminal PATH_SEGMENT:
+    /\/[a-zA-Z0-9_-]+/;
 
 terminal IDENTIFIER:
     /[a-zA-Z][a-zA-Z0-9_]*/;

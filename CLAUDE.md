@@ -6,16 +6,19 @@
 - **Endpoint 선언**: 파일 레벨에서 `endpoint` 키워드로 API 엔드포인트 설정 가능
 - **주석 지원**: `//` 형태의 한 줄 주석 완전 지원 (파일 어디서나 사용 가능)
 - **Path에 하이픈 지원**: URL 경로에 하이픈 포함 가능 (`/api/list-items`, `/user-profile`)
-- **테스트 픽스처 구조화**: 30개 이상의 `.urlspec` 픽스처 파일로 테스트 관리
+- **숫자 경로 지원**: URL 경로에 숫자만 있는 세그먼트 사용 가능 (`/404`, `/500`, `/api/123`)
+- **키워드를 파라미터 이름으로 사용**: `page`, `param`, `global`, `string` 등 키워드를 파라미터 이름으로 사용 가능
+- **테스트 픽스처 구조화**: 35개 이상의 `.urlspec` 픽스처 파일로 테스트 관리
 
 ### 🔧 네이밍 규칙 변경
 - **Namespace 제거**: 파일 레벨 namespace 선언이 제거되었습니다
 - **Page 이름**: camelCase만 허용 (`detail_view` → `detailView`)
 - **ParamType 이름**: camelCase만 허용 (`sort_order` → `sortOrder`)
-- **Parameter 이름**: ✨ 네이밍 제약 제거! 이제 snake_case, camelCase, PascalCase 모두 허용
+- **Parameter 이름**: ✨ 네이밍 제약 제거! 이제 snake_case, camelCase, PascalCase, 심지어 키워드도 모두 허용
   - `job_id` (snake_case)
   - `userId` (camelCase)
   - `MyParam` (PascalCase)
+  - `page`, `param`, `global`, `string` (keywords)
   - 모두 사용 가능합니다!
 
 ### 📁 환경별 Endpoint 관리
@@ -194,6 +197,20 @@ page detail = /api/v2/job-details/:jobId {  // path에 하이픈, 파라미터�
   jobId: string;       // camelCase 파라미터
   preview?: "true" | "false";
 }
+
+// 숫자 경로와 키워드를 파라미터 이름으로 사용
+page notFound = /404 {}  // 숫자만 있는 경로도 가능!
+page serverError = /500 {}
+
+page search = /search {
+  page?: string;    // 'page' 키워드를 파라미터 이름으로 사용
+  param?: string;   // 'param' 키워드도 사용 가능
+  global?: string;  // 'global' 키워드도 사용 가능
+}
+
+page itemDetail = /items/:page {  // 경로 파라미터에도 키워드 사용 가능
+  page: string;
+}
 ```
 
 ### 타입 시스템
@@ -220,11 +237,16 @@ specs/
 
 1. **Page 이름**: camelCase만 허용 (예: `list`, `detailView`)
 2. **ParamType 이름**: camelCase만 허용 (예: `sortOrder`, `jobStatus`)
-3. **Parameter 이름**: ✨ 제약 없음! snake_case, camelCase, PascalCase 모두 허용
+3. **Parameter 이름**: ✨ 제약 없음! snake_case, camelCase, PascalCase, 키워드까지 모두 허용
    - `job_id` (snake_case)
    - `userId` (camelCase)
    - `MyParam` (PascalCase)
-4. **Path 세그먼트**: 하이픈 포함 가능 (예: `/api/list-items`, `/user-profile`)
+   - `page`, `param`, `global`, `string` (keywords)
+4. **Path 세그먼트**: 다양한 형태 지원
+   - 하이픈 포함 가능 (예: `/api/list-items`, `/user-profile`)
+   - 숫자만 있는 세그먼트 가능 (예: `/404`, `/500`, `/api/123`)
+   - 일반 식별자 (예: `/users`, `/items`)
+   - 경로 파라미터 (예: `/:id`, `/:page`, `/:userId`)
 5. **경로 파라미터**: `:param_name` 형태는 반드시 파라미터 블록에 선언되어야 함
 6. **문자열 리터럴**: 유니온 타입과 문자열 리터럴은 따옴표로 감싸야 함
 7. **주석**: 파일 어디서나 `//` 형태의 한 줄 주석 사용 가능

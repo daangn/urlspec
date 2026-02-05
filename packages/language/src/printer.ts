@@ -62,7 +62,8 @@ function printPage(page: PageDeclaration): string {
 
 function printPathSegment(segment: PathSegment): string {
   if (segment.static) {
-    return `/${segment.static}`;
+    // PATH_SEGMENT now includes the leading slash
+    return segment.static;
   }
   if (segment.parameter) {
     return `/:${segment.parameter}`;

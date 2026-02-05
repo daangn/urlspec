@@ -1,0 +1,40 @@
+// URLSpec New Features Demo
+// Numeric paths and keywords as parameter names
+
+// Error pages with numeric paths
+page notFound = /404 {}
+page serverError = /500 {}
+page unauthorized = /401 {}
+
+// API versioning with numeric segments
+page apiV1 = /api/1/users {}
+page apiV2 = /api/2/users {}
+
+// Mixed paths with numbers, hyphens, and keywords
+page complexPath = /api/v2/error-codes/404/details {}
+
+// Using keywords as parameter names
+page search = /search {
+  page?: string;      // 'page' keyword as parameter
+  param?: string;     // 'param' keyword as parameter
+  global?: string;    // 'global' keyword as parameter
+  string?: string;    // 'string' keyword as parameter
+}
+
+// Path parameters using keywords
+page paginated = /items/:page {
+  page: string;       // Both path param and query param named 'page'
+}
+
+page advanced = /data/:param/:global {
+  param: string;
+  global: string;
+  page?: string;
+}
+
+// Real-world example: Pagination with 'page' parameter
+page listItems = /items {
+  page?: string;      // Page number - using 'page' keyword!
+  sort?: "asc" | "desc";
+  limit?: string;
+}

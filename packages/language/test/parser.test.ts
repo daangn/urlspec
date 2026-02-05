@@ -54,11 +54,11 @@ describe("URLSpec Parser", () => {
     // Check path segments
     const listPath = model.pages[0]?.path;
     expect(listPath?.segments).toHaveLength(1);
-    expect(listPath?.segments[0]?.static).toBe("jobs");
+    expect(listPath?.segments[0]?.static).toBe("/jobs");
 
     const detailPath = model.pages[1]?.path;
     expect(detailPath?.segments).toHaveLength(2);
-    expect(detailPath?.segments[0]?.static).toBe("jobs");
+    expect(detailPath?.segments[0]?.static).toBe("/jobs");
     expect(detailPath?.segments[1]?.parameter).toBe("job_id");
   });
 

@@ -111,7 +111,8 @@ function resolvePage(
   // Parse path segments
   const pathSegments: ResolvedPathSegment[] = page.path.segments.map((seg) => {
     if (seg.static) {
-      return { type: "static" as const, value: seg.static };
+      // PATH_SEGMENT now includes the leading slash, so remove it for the value
+      return { type: "static" as const, value: seg.static.substring(1) };
     }
     if (seg.parameter) {
       return { type: "parameter" as const, value: seg.parameter };

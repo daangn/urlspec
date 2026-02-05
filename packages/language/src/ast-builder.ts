@@ -105,7 +105,7 @@ export function createPathSegment(
 
 /**
  * Parse a path string into segments
- * Example: "/jobs/:job_id" -> [static("jobs"), parameter("job_id")]
+ * Example: "/jobs/:job_id" -> [static("/jobs"), parameter("job_id")]
  */
 export function parsePath(pathStr: string): Path {
   const parts = pathStr.split("/").filter((p) => p.length > 0);
@@ -113,7 +113,8 @@ export function parsePath(pathStr: string): Path {
     if (part.startsWith(":")) {
       return createPathSegment(part.slice(1), true);
     }
-    return createPathSegment(part, false);
+    // Static segments now include the leading slash
+    return createPathSegment(`/${part}`, false);
   });
 
   return {

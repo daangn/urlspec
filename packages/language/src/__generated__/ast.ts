@@ -7,7 +7,7 @@
 import * as langium from 'langium';
 
 export const URLSpecTerminals = {
-    PATH_SEGMENT_WITH_HYPHEN: /[a-zA-Z][a-zA-Z0-9_-]*-[a-zA-Z0-9_-]*/,
+    PATH_SEGMENT: /\/[a-zA-Z0-9_-]+/,
     IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_]*/,
     STRING: /"([^"\\]|\\.)*"/,
     WS: /\s+/,
@@ -17,7 +17,7 @@ export const URLSpecTerminals = {
 export type URLSpecTerminalNames = keyof typeof URLSpecTerminals;
 
 export type URLSpecKeywordNames =
-    | "/"
+    | "/:"
     | ":"
     | ";"
     | "="
@@ -69,7 +69,7 @@ export function isPageDeclaration(item: unknown): item is PageDeclaration {
 export interface ParameterDeclaration extends langium.AstNode {
     readonly $container: GlobalBlock | PageDeclaration;
     readonly $type: 'ParameterDeclaration';
-    name: string;
+    name: ParameterName;
     optional?: '?';
     type: Type;
 }
@@ -83,6 +83,12 @@ export const ParameterDeclaration = {
 
 export function isParameterDeclaration(item: unknown): item is ParameterDeclaration {
     return reflection.isInstance(item, ParameterDeclaration.$type);
+}
+
+export type ParameterName = 'global' | 'page' | 'param' | 'string' | string;
+
+export function isParameterName(item: unknown): item is ParameterName {
+    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_]*/.test(item)));
 }
 
 export interface ParamTypeDeclaration extends langium.AstNode {
@@ -120,7 +126,7 @@ export function isPath(item: unknown): item is Path {
 export interface PathSegment extends langium.AstNode {
     readonly $container: Path;
     readonly $type: 'PathSegment';
-    parameter?: string;
+    parameter?: ParameterName;
     static?: string;
 }
 
