@@ -7,6 +7,7 @@
 import * as langium from 'langium';
 
 export const URLSpecTerminals = {
+    PATH_SEGMENT_WITH_HYPHEN: /[a-zA-Z][a-zA-Z0-9_-]*-[a-zA-Z0-9_-]*/,
     IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_]*/,
     STRING: /"([^"\\]|\\.)*"/,
     WS: /\s+/,

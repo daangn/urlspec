@@ -13,66 +13,82 @@ function fixture(name: string): string {
 describe("URLSpec Validation", () => {
   describe("Parameter key naming validation", () => {
     it("should accept parameter keys in snake_case", async () => {
-      const doc = await parseFile(fixture("validation-param-snake-case.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-param-snake-case.urlspec"),
+      );
 
       expect(doc.parseResult.lexerErrors).toHaveLength(0);
       expect(doc.parseResult.parserErrors).toHaveLength(0);
       expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
-    it("should reject parameter keys in camelCase", async () => {
-      const doc = await parseFile(fixture("validation-param-camelCase-invalid.urlspec"));
+    it("should accept parameter keys in camelCase", async () => {
+      const doc = await parseFile(
+        fixture("validation-param-camelCase-invalid.urlspec"),
+      );
 
-      // Should have validation errors for camelCase parameter names
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
+      // Parameter naming restriction has been removed
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
-    it("should reject parameter keys in PascalCase", async () => {
-      const doc = await parseFile(fixture("validation-param-PascalCase-invalid.urlspec"));
+    it("should accept parameter keys in PascalCase", async () => {
+      const doc = await parseFile(
+        fixture("validation-param-PascalCase-invalid.urlspec"),
+      );
 
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
-    it("should reject parameter keys with mixed case", async () => {
-      const doc = await parseFile(fixture("validation-param-mixed-case-invalid.urlspec"));
+    it("should accept parameter keys with mixed case", async () => {
+      const doc = await parseFile(
+        fixture("validation-param-mixed-case-invalid.urlspec"),
+      );
 
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
-    it("should reject parameter keys starting with uppercase", async () => {
-      const doc = await parseFile(fixture("validation-param-uppercase-start-invalid.urlspec"));
+    it("should accept parameter keys starting with uppercase", async () => {
+      const doc = await parseFile(
+        fixture("validation-param-uppercase-start-invalid.urlspec"),
+      );
 
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
     it("should accept global parameter keys in snake_case", async () => {
-      const doc = await parseFile(fixture("validation-global-snake-case.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-global-snake-case.urlspec"),
+      );
 
       expect(doc.parseResult.lexerErrors).toHaveLength(0);
       expect(doc.parseResult.parserErrors).toHaveLength(0);
       expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
-    it("should reject global parameter keys not in snake_case", async () => {
-      const doc = await parseFile(fixture("validation-global-camelCase-invalid.urlspec"));
+    it("should accept global parameter keys in camelCase", async () => {
+      const doc = await parseFile(
+        fixture("validation-global-camelCase-invalid.urlspec"),
+      );
 
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
     });
   });
 
   describe("ParamType alias naming validation", () => {
     it("should accept ParamType names in camelCase", async () => {
-      const doc = await parseFile(fixture("validation-paramtype-camelCase.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-paramtype-camelCase.urlspec"),
+      );
 
       expect(doc.parseResult.lexerErrors).toHaveLength(0);
       expect(doc.parseResult.parserErrors).toHaveLength(0);
@@ -82,7 +98,9 @@ describe("URLSpec Validation", () => {
 
   describe("Path parameter validation", () => {
     it("should require path parameters to be declared in parameter block", async () => {
-      const doc = await parseFile(fixture("validation-path-param-missing.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-path-param-missing.urlspec"),
+      );
 
       // Should have validation error for missing job_id declaration
       expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
@@ -95,7 +113,9 @@ describe("URLSpec Validation", () => {
     });
 
     it("should accept path parameters when declared in parameter block", async () => {
-      const doc = await parseFile(fixture("validation-path-param-declared.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-path-param-declared.urlspec"),
+      );
 
       expect(doc.parseResult.lexerErrors).toHaveLength(0);
       expect(doc.parseResult.parserErrors).toHaveLength(0);
@@ -103,7 +123,9 @@ describe("URLSpec Validation", () => {
     });
 
     it("should require all path parameters to be declared", async () => {
-      const doc = await parseFile(fixture("validation-path-param-multiple-missing.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-path-param-multiple-missing.urlspec"),
+      );
 
       // Should have validation error for missing comment_id declaration
       expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
@@ -117,32 +139,38 @@ describe("URLSpec Validation", () => {
     });
 
     it("should accept multiple path parameters when all are declared", async () => {
-      const doc = await parseFile(fixture("validation-path-param-multiple-declared.urlspec"));
+      const doc = await parseFile(
+        fixture("validation-path-param-multiple-declared.urlspec"),
+      );
 
       expect(doc.parseResult.lexerErrors).toHaveLength(0);
       expect(doc.parseResult.parserErrors).toHaveLength(0);
       expect(doc.diagnostics ?? []).toHaveLength(0);
     });
 
-    it("should validate path parameter naming follows snake_case", async () => {
-      const doc = await parseFile(fixture("validation-path-param-camelCase-invalid.urlspec"));
+    it("should accept path parameter in any naming convention", async () => {
+      const doc = await parseFile(
+        fixture("validation-path-param-camelCase-invalid.urlspec"),
+      );
 
-      // Path parameter names should follow snake_case, so jobId should fail
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
+      // Parameter naming restriction has been removed
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
     });
   });
 
   describe("Combined validation scenarios", () => {
-    it("should validate both parameter naming and path parameter declaration", async () => {
-      const doc = await parseFile(fixture("validation-combined-invalid.urlspec"));
+    it("should validate path parameter declaration", async () => {
+      const doc = await parseFile(
+        fixture("validation-combined-invalid.urlspec"),
+      );
 
       expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
       const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
 
-      // Should have at least 2 errors: missing job_id + camelCase sortOrder
-      expect(errors.length).toBeGreaterThanOrEqual(2);
+      // Should have at least 1 error: missing job_id (parameter naming is no longer restricted)
+      expect(errors.length).toBeGreaterThanOrEqual(1);
     });
 
     it("should accept valid specification with all rules followed", async () => {

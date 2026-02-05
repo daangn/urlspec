@@ -37,10 +37,8 @@ import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
 
-spec.setNamespace('jobs');
-
-spec.addParamType('sort_order', ['recent', 'popular', 'trending']);
-spec.addParamType('job_status', ['active', 'closed', 'draft']);
+spec.addParamType('sortOrder', ['recent', 'popular', 'trending']);
+spec.addParamType('jobStatus', ['active', 'closed', 'draft']);
 
 spec.addGlobalParam({
   name: 'utm_source',
@@ -53,7 +51,7 @@ spec.addPage({
   path: '/jobs',
   parameters: [
     { name: 'category', type: 'string', optional: true },
-    { name: 'sort', type: 'sort_order' },
+    { name: 'sort', type: 'sortOrder' },
   ],
 });
 
@@ -63,7 +61,7 @@ spec.addPage({
   parameters: [
     { name: 'job_id', type: 'string' },
     { name: 'preview', type: ['true', 'false'], optional: true },
-    { name: 'status', type: 'job_status', optional: true },
+    { name: 'status', type: 'jobStatus', optional: true },
   ],
 });
 
@@ -77,10 +75,8 @@ await spec.writeFile('./jobs.urlspec');
 **Output:**
 
 ```urlspec
-namespace "jobs";
-
-param sort_order = "recent" | "popular" | "trending";
-param job_status = "active" | "closed" | "draft";
+param sortOrder = "recent" | "popular" | "trending";
+param jobStatus = "active" | "closed" | "draft";
 
 global {
   utm_source?: string;
@@ -88,13 +84,13 @@ global {
 
 page list = /jobs {
   category?: string;
-  sort: sort_order;
+  sort: sortOrder;
 }
 
 page detail = /jobs/:job_id {
   job_id: string;
   preview?: "true" | "false";
-  status?: job_status;
+  status?: jobStatus;
 }
 ```
 
@@ -112,15 +108,6 @@ const spec = new URLSpec();
 
 #### Methods
 
-##### `setNamespace(name: string): void`
-
-Set the namespace for the URLSpec document (required).
-
-```typescript
-spec.setNamespace('api.v1');
-```
-
-
 ##### `addParamType(name: string, type: ParamType): void`
 
 Add a reusable parameter type definition.
@@ -137,7 +124,7 @@ spec.addParamType('sort', ['asc', 'desc']);
 spec.addParamType('priority', ['low', 'medium', 'high']);
 
 // Reference to another param type (define that type first)
-spec.addParamType('user_sort', 'sort');
+spec.addParamType('userSort', 'sort');
 ```
 
 **`ParamType` Definition:**
@@ -203,7 +190,6 @@ Build and return the Langium AST document.
 
 ```typescript
 const ast = spec.toAST();
-console.log(ast.namespace);
 console.log(ast.pages);
 ```
 
@@ -233,7 +219,6 @@ import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
 
-spec.setNamespace('blog');
 
 spec.addPage({
   name: 'home',
@@ -259,7 +244,6 @@ Generate multiple similar pages programmatically:
 import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
-spec.setNamespace('jobs');
 
 // Define available statuses
 const statuses = ['pending', 'approved', 'rejected', 'archived'];
@@ -285,12 +269,11 @@ await spec.writeFile('./jobs.urlspec');
 import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
-spec.setNamespace('shop');
 
 // Define reusable types
 spec.addParamType('category', ['electronics', 'clothing', 'food', 'books']);
-spec.addParamType('sort_by', ['price', 'popularity', 'newest']);
-spec.addParamType('sort_order', ['asc', 'desc']);
+spec.addParamType('sortBy', ['price', 'popularity', 'newest']);
+spec.addParamType('sortOrder', ['asc', 'desc']);
 
 // Use type references in pages
 spec.addPage({
@@ -298,8 +281,8 @@ spec.addPage({
   path: '/products',
   parameters: [
     { name: 'cat', type: 'category', optional: true },
-    { name: 'sort', type: 'sort_by', optional: true },
-    { name: 'order', type: 'sort_order', optional: true },
+    { name: 'sort', type: 'sortBy', optional: true },
+    { name: 'order', type: 'sortOrder', optional: true },
   ],
 });
 
@@ -321,7 +304,6 @@ console.log(spec.toString());
 import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
-spec.setNamespace('analytics');
 
 // Add global tracking parameters
 spec.addGlobalParam({
@@ -388,7 +370,6 @@ const openAPISchema = {
 
 // Convert to URLSpec
 const spec = new URLSpec();
-spec.setNamespace('api');
 
 for (const [path, methods] of Object.entries(openAPISchema.paths)) {
   const getMethod = methods.get;
@@ -426,7 +407,6 @@ const legacyRoutes = [
 
 // Convert to URLSpec
 const spec = new URLSpec();
-spec.setNamespace('website');
 
 for (const route of legacyRoutes) {
   spec.addPage({
@@ -450,7 +430,6 @@ await spec.writeFile('./website.urlspec');
 import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
-spec.setNamespace('api');
 spec.addPage({ name: 'home', path: '/' });
 
 // Get the AST
@@ -458,7 +437,6 @@ const ast = spec.toAST();
 
 // Access AST properties
 console.log(ast.$type); // "URLSpecModel"
-console.log(ast.namespace); // { value: "api" }
 console.log(ast.pages.length); // 1
 
 // Use with @urlspec/language functions
@@ -486,7 +464,7 @@ import {
 } from '@urlspec/builder';
 
 const ast = createURLSpecDocument({
-  namespace: 'api',
+  // Namespace removed from URLSpec
   pages: [
     createPageDeclaration(
       'users',
@@ -525,16 +503,14 @@ import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
 
-try {
-  // This will throw an error because namespace is required
-  const ast = spec.toAST();
-} catch (error) {
-  console.error(error.message); // "Namespace is required"
-}
+// Add at least one page
+spec.addPage({
+  name: 'home',
+  path: '/',
+});
 
-// Set namespace to fix
-spec.setNamespace('api');
-const ast = spec.toAST(); // Works now
+const ast = spec.toAST(); // Valid URLSpec document
+console.log(ast.pages.length); // 1
 ```
 
 ## Use Cases

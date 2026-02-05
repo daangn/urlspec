@@ -18,7 +18,7 @@ Path:
     segments+=PathSegment+;
 
 PathSegment:
-    '/' (static=IDENTIFIER | ':' parameter=IDENTIFIER);
+    '/' (static=PATH_SEGMENT_WITH_HYPHEN | static=IDENTIFIER | ':' parameter=IDENTIFIER);
 
 ParameterDeclaration:
     name=IDENTIFIER optional='?'? ':' type=Type ';';
@@ -37,6 +37,9 @@ UnionType:
 
 TypeReference:
     ref=[ParamTypeDeclaration:IDENTIFIER];
+
+terminal PATH_SEGMENT_WITH_HYPHEN:
+    /[a-zA-Z][a-zA-Z0-9_-]*-[a-zA-Z0-9_-]*/;
 
 terminal IDENTIFIER:
     /[a-zA-Z][a-zA-Z0-9_]*/;

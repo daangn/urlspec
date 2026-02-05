@@ -38,8 +38,6 @@ pnpm add @urlspec/language
 import { parse } from '@urlspec/language';
 
 const urlspecContent = `
-namespace "jobs";
-
 page list = /jobs {
   category?: string;
 }
@@ -48,7 +46,7 @@ page list = /jobs {
 const document = await parse(urlspecContent);
 
 // Access the Langium AST
-console.log(document.parseResult.value.namespace); // "jobs"
+console.log(document.parseResult.value.pages[0].name); // "list"
 ```
 
 ### Resolved API (Recommended)
@@ -61,8 +59,7 @@ import { resolve } from '@urlspec/language';
 const spec = resolve(urlspecContent);
 
 // Easier to work with resolved structure
-console.log(spec.namespace); // "jobs"
-
+console.log(spec.pages[0].name); // "list"
 console.log(spec.pages[0].path); // "/jobs"
 console.log(spec.pages[0].parameters);
 // Includes both page-specific and global parameters
@@ -114,13 +111,14 @@ Parses URLSpec text into a Langium document with AST.
 **Example:**
 ```typescript
 const document = await parse(`
-namespace "api";
-page home = /home;
+page home = /home {
+  query?: string;
+}
 `);
 
 const ast = document.parseResult.value;
-console.log(ast.namespace); // "api"
 console.log(ast.pages[0].name); // "home"
+console.log(ast.pages[0].parameters[0].name); // "query"
 ```
 
 ### `resolve(input: string): ResolvedURLSpec`
@@ -139,8 +137,6 @@ Parses and resolves URLSpec into a developer-friendly structure with:
 **Example:**
 ```typescript
 const spec = resolve(`
-namespace "shop";
-
 param category = "electronics" | "clothing" | "food";
 
 global {
@@ -152,14 +148,13 @@ page products = /products {
 }
 `);
 
-console.log(spec.namespace); // "shop"
 console.log(spec.paramTypes[0]);
 // { name: 'category', type: { kind: 'union', values: ['electronics', 'clothing', 'food'] } }
 
 const productsPage = spec.pages[0];
-console.log(productsPage.parameters[1].type);
+console.log(productsPage.parameters.cat.type);
 // Resolved to actual union type, not a reference
-console.log(productsPage.parameters[0]);
+console.log(productsPage.parameters.utm_source);
 // Global parameter merged into page
 ```
 
@@ -177,15 +172,15 @@ Converts a Langium AST back to formatted URLSpec text.
 ```typescript
 import { parse, print } from '@urlspec/language';
 
-const document = await parse('namespace "api"; page home = /home;');
+const document = await parse('page home = /home { query?: string; }');
 const ast = document.parseResult.value;
 
 const formatted = print(ast);
 console.log(formatted);
 // Output:
-// namespace "api";
-//
-// page home = /home;
+// page home = /home {
+//   query?: string;
+// }
 ```
 
 ### `createURLSpecServices(context?: DefaultSharedModuleContext): URLSpecServices`
@@ -206,11 +201,10 @@ Top-level resolved structure representing an entire URLSpec document.
 
 ```typescript
 interface ResolvedURLSpec {
-  namespace: string;
-  endpoints: Record<string, string>;
-  paramTypes: Record<string, ResolvedType>;
-  globalParameters: Record<string, ResolvedParameter>;
-  pages: Record<string, ResolvedPage>;
+  endpoint?: string;
+  paramTypes: ResolvedParamType[];
+  globalParameters: ResolvedParameter[];
+  pages: ResolvedPage[];
 }
 ```
 
@@ -223,7 +217,8 @@ interface ResolvedPage {
   name: string;
   path: string;
   pathSegments: ResolvedPathSegment[];
-  parameters: Record<string, ResolvedParameter>;
+  parameters: ResolvedParameter[];
+  description?: string;
 }
 ```
 
@@ -345,24 +340,22 @@ validator.register({
 
 ```typescript
 const spec = resolve(`
-namespace "blog";
-
 page article = /blog/:category/:article_id {
   category: string;
   article_id: string;
 }
 `);
 
-const articlePage = spec.pages.article;
+const articlePage = spec.pages[0];
 
 articlePage.pathSegments.forEach(segment => {
-  if (segment.kind === 'static') {
+  if (segment.type === 'static') {
     console.log(`Static: ${segment.value}`);
-  } else if (segment.kind === 'dynamic') {
-    console.log(`Dynamic: ${segment.name}`);
-    // Get the parameter type
-    const param = articlePage.parameters[segment.name];
-    console.log(`  Type: ${param.type.kind}`);
+  } else if (segment.type === 'parameter') {
+    console.log(`Dynamic: ${segment.value}`);
+    // Get the parameter details
+    const param = articlePage.parameters.find(p => p.name === segment.value);
+    console.log(`  Optional: ${param.optional}`);
   }
 });
 ```
@@ -370,13 +363,6 @@ articlePage.pathSegments.forEach(segment => {
 ## Language Grammar
 
 URLSpec is defined using Langium grammar. Key syntax elements:
-
-### Namespace (Required)
-
-```urlspec
-namespace "my-namespace";
-```
-
 
 ### Parameter Types
 

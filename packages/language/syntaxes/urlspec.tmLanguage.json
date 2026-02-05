@@ -1,9 +1,7 @@
 {
   "name": "urlspec",
   "scopeName": "source.urlspec",
-  "fileTypes": [
-    ".urlspec"
-  ],
+  "fileTypes": [".urlspec"],
   "patterns": [
     {
       "include": "#comments"

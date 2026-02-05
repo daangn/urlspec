@@ -4,14 +4,19 @@
 
 ### ✨ 새로운 기능
 - **Endpoint 선언**: 파일 레벨에서 `endpoint` 키워드로 API 엔드포인트 설정 가능
-- **주석 지원**: `//` 형태의 한 줄 주석 완전 지원
+- **주석 지원**: `//` 형태의 한 줄 주석 완전 지원 (파일 어디서나 사용 가능)
+- **Path에 하이픈 지원**: URL 경로에 하이픈 포함 가능 (`/api/list-items`, `/user-profile`)
 - **테스트 픽스처 구조화**: 30개 이상의 `.urlspec` 픽스처 파일로 테스트 관리
 
 ### 🔧 네이밍 규칙 변경
-- **Namespace**: 따옴표 제거, camelCase만 허용 (`"app-name"` → `appName`)
+- **Namespace 제거**: 파일 레벨 namespace 선언이 제거되었습니다
 - **Page 이름**: camelCase만 허용 (`detail_view` → `detailView`)
 - **ParamType 이름**: camelCase만 허용 (`sort_order` → `sortOrder`)
-- **Parameter 이름**: snake_case 유지 (`job_id`, `utm_source`)
+- **Parameter 이름**: ✨ 네이밍 제약 제거! 이제 snake_case, camelCase, PascalCase 모두 허용
+  - `job_id` (snake_case)
+  - `userId` (camelCase)
+  - `MyParam` (PascalCase)
+  - 모두 사용 가능합니다!
 
 ### 📁 환경별 Endpoint 관리
 파일 단위로 endpoint를 선언하므로, 환경별로 다른 파일 사용을 권장:
@@ -69,11 +74,10 @@ urlspec/
 - **핵심 파일**:
   - `src/index.ts` - `URLSpec` 클래스와 빌더 API
 - **주요 메서드**:
-  - `setNamespace(name)` - namespace 설정 (camelCase)
   - `setEndpoint(url)` - endpoint 설정 (선택적)
   - `addParamType(name, type)` - param type 추가 (camelCase)
-  - `addGlobalParam(param)` - global parameter 추가 (snake_case)
-  - `addPage(page)` - page 추가 (camelCase 이름, snake_case 파라미터)
+  - `addGlobalParam(param)` - global parameter 추가 (네이밍 제약 없음)
+  - `addPage(page)` - page 추가 (camelCase 이름, 파라미터는 네이밍 제약 없음)
   - `toString()` - .urlspec 형식 문자열로 변환
   - `writeFile(path)` - 파일로 저장
 
@@ -143,8 +147,9 @@ yarn format
 ### 언어 정의
 - `packages/language/src/urlspec.langium` - **가장 중요**: 언어 문법 정의
   - 문법 변경 시 파서/AST 타입이 자동으로 재생성됨
-  - NamespaceDeclaration, EndpointDeclaration, ParamTypeDeclaration, PageDeclaration 등의 규칙 정의
+  - ParamTypeDeclaration, GlobalBlock, PageDeclaration 등의 규칙 정의
   - `hidden terminal SL_COMMENT`로 주석(`//`) 지원
+  - PATH_SEGMENT_WITH_HYPHEN terminal로 하이픈 포함 경로 지원
 
 ### 타입 정의
 - `packages/language/src/resolved-types.ts` - 사용자 대면 타입 정의
@@ -168,30 +173,25 @@ yarn format
 ### 기본 구조
 
 ```urlspec
-// namespace는 camelCase로 작성 (따옴표 없음)
-namespace jobs;
-
-// endpoint는 선택적으로 파일 레벨에서 한 번만 선언 가능
-endpoint "https://api.example.com";
-
 // 파라미터 타입 정의 (재사용 가능) - camelCase로 작성
 param sortOrder = "recent" | "popular";
 param jobStatus = "active" | "closed";
 
-// 전역 파라미터 (모든 페이지에 적용) - snake_case로 작성
+// 전역 파라미터 (모든 페이지에 적용) - 네이밍 제약 없음!
 global {
-  utm_source?: string;
-  referrer?: string;
+  utm_source?: string;  // snake_case
+  utmCampaign?: string; // camelCase
+  ReferrerID?: string;  // PascalCase - 모두 가능!
 }
 
 // 페이지 정의 - 페이지 이름은 camelCase
-page list = /jobs {
+page list = /api/job-list {  // path에 하이픈 사용 가능!
   sort?: sortOrder;
   category?: string;
 }
 
-page detail = /jobs/:job_id {
-  job_id: string;  // 파라미터는 snake_case
+page detail = /api/v2/job-details/:jobId {  // path에 하이픈, 파라미터는 camelCase
+  jobId: string;       // camelCase 파라미터
   preview?: "true" | "false";
 }
 ```
@@ -214,17 +214,20 @@ specs/
 └── jobs.prod.urlspec     # endpoint "https://api.example.com";
 ```
 
-각 파일은 동일한 namespace와 page 정의를 가지지만 endpoint만 다르게 설정하여 환경별로 사용할 수 있습니다.
+각 파일은 동일한 page 정의를 가지지만 endpoint만 다르게 설정하여 환경별로 사용할 수 있습니다.
 
 ### 검증 규칙
 
-1. **Namespace**: camelCase만 허용 (예: `jobs`, `userSettings`)
-2. **Page 이름**: camelCase만 허용 (예: `list`, `detailView`)
-3. **ParamType 이름**: camelCase만 허용 (예: `sortOrder`, `jobStatus`)
-4. **Parameter 이름**: snake_case만 허용 (예: `job_id`, `utm_source`)
+1. **Page 이름**: camelCase만 허용 (예: `list`, `detailView`)
+2. **ParamType 이름**: camelCase만 허용 (예: `sortOrder`, `jobStatus`)
+3. **Parameter 이름**: ✨ 제약 없음! snake_case, camelCase, PascalCase 모두 허용
+   - `job_id` (snake_case)
+   - `userId` (camelCase)
+   - `MyParam` (PascalCase)
+4. **Path 세그먼트**: 하이픈 포함 가능 (예: `/api/list-items`, `/user-profile`)
 5. **경로 파라미터**: `:param_name` 형태는 반드시 파라미터 블록에 선언되어야 함
 6. **문자열 리터럴**: 유니온 타입과 문자열 리터럴은 따옴표로 감싸야 함
-7. **Endpoint**: 파일당 한 번만 선언 가능 (선택적)
+7. **주석**: 파일 어디서나 `//` 형태의 한 줄 주석 사용 가능
 
 ## 개발 시 주의사항
 
@@ -306,27 +309,27 @@ import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
 
-// Namespace 설정 (camelCase)
-spec.setNamespace('jobs');
-
-// Endpoint 설정 (선택적)
-spec.setEndpoint('https://api.example.com');
-
 // ParamType 정의 (camelCase)
 spec.addParamType('sortOrder', ['recent', 'popular', 'trending']);
 spec.addParamType('jobStatus', ['active', 'closed', 'draft']);
 
-// Global 파라미터 추가 (snake_case)
+// Global 파라미터 추가 (네이밍 제약 없음)
 spec.addGlobalParam({
   name: 'utm_source',
   type: 'string',
   optional: true,
 });
 
-// 페이지 추가 (camelCase 이름, snake_case 파라미터)
+spec.addGlobalParam({
+  name: 'userId',
+  type: 'string',
+  optional: true,
+});
+
+// 페이지 추가 (camelCase 이름, 파라미터는 네이밍 제약 없음)
 spec.addPage({
   name: 'list',
-  path: '/jobs',
+  path: '/api/job-list',  // 하이픈 포함 가능
   parameters: [
     { name: 'category', type: 'string', optional: true },
     { name: 'sort', type: 'sortOrder' },
