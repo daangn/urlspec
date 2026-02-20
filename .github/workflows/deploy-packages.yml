@@ -36,23 +36,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Upload VSIX to Package-Specific Release
-        if: steps.changesets.outputs.published == 'true'
+      - name: Check if VSCode Extension version is unpublished on Open VSX
+        id: check-open-vsx
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./packages/urlspec-vscode-extension/package.json').version")
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://open-vsx.org/api/daangn/urlspec-vscode-extension/$VERSION")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "unpublished=$([ "$HTTP_STATUS" = "404" ] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Open VSX Registry
+        if: steps.check-open-vsx.outputs.unpublished == 'true'
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          OVSX_PAT: ${{ secrets.OPEN_VSX_TOKEN }}
         run: |
-          PACKAGE_NAME="urlspec-vscode-extension"
-          VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r ".[] | select(.name == \"$PACKAGE_NAME\") | .version")
-
-          if [ -n "$VERSION" ] && [ "$VERSION" != "null" ]; then
-            TAG_NAME="$PACKAGE_NAME@$VERSION"
-            echo "Target Tag: $TAG_NAME"
-
-            cd packages/$PACKAGE_NAME
-
-            VSIX_FILE=$(ls *.vsix)
-            gh release upload "$TAG_NAME" "$VSIX_FILE" --clobber
-          else
-            echo "No update for $PACKAGE_NAME in this release."
-          fi
+          cd packages/urlspec-vscode-extension
+          VSIX_FILE=$(ls *.vsix)
+          npx ovsx publish "$VSIX_FILE" --pat "$OVSX_PAT"
