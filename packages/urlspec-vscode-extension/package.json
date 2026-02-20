@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "author": "Danggeun Market Inc.",
-  "publisher": "tonyfromundefined",
+  "publisher": "daangn",
   "type": "module",
   "main": "./dist/extension.cjs",
   "files": [
