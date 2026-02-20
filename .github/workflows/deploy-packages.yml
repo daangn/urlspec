@@ -42,6 +42,8 @@ jobs:
         run: |
           VERSION=$(node -p "require('./packages/urlspec-vscode-extension/package.json').version")
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://open-vsx.org/api/daangn/urlspec-vscode-extension/$VERSION")
+          echo "version=$VERSION"
+          echo "unpublished=$([ "$HTTP_STATUS" = "404" ] && echo 'true' || echo 'false')"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "unpublished=$([ "$HTTP_STATUS" = "404" ] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
 
