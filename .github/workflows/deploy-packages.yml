@@ -40,7 +40,7 @@ jobs:
         id: check-open-vsx
         shell: bash
         run: |
-          VERSION=$(node -p "require('./packages/urlspec-vscode-extension/package.json').version")
+          VERSION=$(git show HEAD:packages/urlspec-vscode-extension/package.json | node -e "let d=''; process.stdin.on('data',c=>d+=c); process.stdin.on('end',()=>process.stdout.write(JSON.parse(d).version))")
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://open-vsx.org/api/daangn/urlspec-vscode-extension/$VERSION")
           echo "version=$VERSION"
           echo "unpublished=$([ "$HTTP_STATUS" = "404" ] && echo 'true' || echo 'false')"
