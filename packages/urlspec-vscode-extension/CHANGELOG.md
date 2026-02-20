@@ -1,5 +1,11 @@
 # urlspec-vscode-extension
 
+## 0.4.0
+
+### Minor Changes
+
+- bf7e598: docs: update README.md
+
 ## 0.3.1
 
 ### Patch Changes
