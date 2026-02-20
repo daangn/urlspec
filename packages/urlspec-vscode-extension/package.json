@@ -1,7 +1,7 @@
 {
   "name": "urlspec-vscode-extension",
   "displayName": "URLSpec Language Support",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": true,
   "description": "VS Code language support for URLSpec - a type-safe URL definition language",
   "keywords": [
