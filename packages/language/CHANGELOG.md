@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.4.1
+
+### Patch Changes
+
+- 30361a8: fix: support `.` in path
+
 ## 0.4.0
 
 ### Minor Changes

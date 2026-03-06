@@ -1,5 +1,13 @@
 # urlspec-vscode-extension
 
+## 0.4.1
+
+### Patch Changes
+
+- 30361a8: fix: support `.` in path
+- Updated dependencies [30361a8]
+  - @urlspec/language@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
