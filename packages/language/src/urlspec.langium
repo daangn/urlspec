@@ -45,7 +45,7 @@ hidden terminal SL_COMMENT:
     /\/\/[^\n\r]*/;
 
 terminal PATH_SEGMENT:
-    /\/[a-zA-Z0-9_-]+/;
+    /\/[a-zA-Z0-9_.\-]+/;
 
 terminal PARAM_PREFIX:
     '/:';

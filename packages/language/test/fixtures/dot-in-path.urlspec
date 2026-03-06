@@ -1,0 +1,6 @@
+// Lynx Native Modules 테스트 문서 페이지
+page docs = /main.lynx.bundle {}
+
+page apiV1 = /api/v1.0/users {}
+
+page bundleFile = /assets/app.min.js {}

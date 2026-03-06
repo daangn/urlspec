@@ -8,7 +8,7 @@ import * as langium from 'langium';
 
 export const URLSpecTerminals = {
     SL_COMMENT: /\/\/[^\n\r]*/,
-    PATH_SEGMENT: /\/[a-zA-Z0-9_-]+/,
+    PATH_SEGMENT: /\/[a-zA-Z0-9_.\-]+/,
     PARAM_PREFIX: /\/:/,
     ROOT_PATH: /\//,
     IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_]*/,
