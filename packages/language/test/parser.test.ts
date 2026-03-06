@@ -73,6 +73,18 @@ describe("URLSpec Parser", () => {
     expect(model.pages).toHaveLength(2);
   });
 
+  it("should parse paths with dots", async () => {
+    const doc = await parseFile(fixture("dot-in-path.urlspec"));
+    expect(doc.parseResult.lexerErrors).toHaveLength(0);
+    expect(doc.parseResult.parserErrors).toHaveLength(0);
+
+    const model = doc.parseResult.value;
+    expect(model.pages).toHaveLength(3);
+    expect(model.pages[0]?.path.segments[0]?.static).toBe("/main.lynx.bundle");
+    expect(model.pages[1]?.path.segments[1]?.static).toBe("/v1.0");
+    expect(model.pages[2]?.path.segments[1]?.static).toBe("/app.min.js");
+  });
+
   it("should parse spec with comments", async () => {
     const doc = await parseFile(fixture("with-comments.urlspec"));
     expect(doc.parseResult.lexerErrors).toHaveLength(0);
