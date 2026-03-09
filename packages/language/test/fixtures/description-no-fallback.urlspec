@@ -1,0 +1,5 @@
+// 중고거래 카테고리 피드
+page fleamarketCategoryFeed = /fleamarket-category-feed.lynx.bundle {
+  category_id: string;
+  category_name: string;
+}

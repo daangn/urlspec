@@ -131,6 +131,15 @@ describe("URLSpec Resolver", () => {
     expect(detailPageParams?.[3]?.description).toBe("Preview mode flag");
   });
 
+  it("should not inherit page description into parameters without their own comments", async () => {
+    const doc = await parseFile(fixture("description-no-fallback.urlspec"));
+    const spec = resolve(doc);
+
+    expect(spec.pages[0]?.description).toBe("중고거래 카테고리 피드");
+    expect(spec.pages[0]?.parameters[0]?.description).toBeUndefined();
+    expect(spec.pages[0]?.parameters[1]?.description).toBeUndefined();
+  });
+
   it("should parse and resolve example.urlspec file", async () => {
     const doc = await parseFile(fixture("example.urlspec"));
     expect(doc.parseResult.lexerErrors).toHaveLength(0);
