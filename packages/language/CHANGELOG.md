@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.4.2
+
+### Patch Changes
+
+- 65ea99e: feat: allow `.` and `_` in page names
+
 ## 0.4.1
 
 ### Patch Changes
