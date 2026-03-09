@@ -1,5 +1,14 @@
 # urlspec-vscode-extension
 
+## 0.4.3
+
+### Patch Changes
+
+- 3a75cf1: fix: description comment parsing
+- Updated dependencies [de9c4f3]
+- Updated dependencies [3a75cf1]
+  - @urlspec/language@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes

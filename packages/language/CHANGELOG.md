@@ -1,5 +1,15 @@
 # @urlspec/language
 
+## 0.5.0
+
+### Minor Changes
+
+- de9c4f3: feat: support description comments in printer and builder
+
+### Patch Changes
+
+- 3a75cf1: fix: description comment parsing
+
 ## 0.4.2
 
 ### Patch Changes
