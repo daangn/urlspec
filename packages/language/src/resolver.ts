@@ -1,4 +1,4 @@
-import type { AstNode, CstNode, LangiumDocument } from "langium";
+import type { AstNode, LangiumDocument } from "langium";
 import type {
   PageDeclaration,
   ParameterDeclaration,
@@ -23,46 +23,31 @@ import type {
  */
 function extractDescription(node: AstNode): string | undefined {
   const cstNode = node.$cstNode;
-  if (!cstNode) return undefined;
+  if (!cstNode?.container) return undefined;
 
-  // Look for comments in the CST tree before this node
-  let currentNode: CstNode | undefined = cstNode;
+  const container = cstNode.container;
+  const children = container.content;
+  const currentIndex = children.indexOf(cstNode);
   const comments: string[] = [];
 
-  // Walk backwards through sibling nodes to find comments
-  while (currentNode?.container) {
-    const container = currentNode.container;
-    const children = container.content;
-    const currentIndex = children.indexOf(currentNode);
-
-    // Look at previous siblings
-    let foundNonWhitespace = false;
-    for (let i = currentIndex - 1; i >= 0; i--) {
-      const sibling = children[i];
-      if (sibling.tokenType?.name === "SL_COMMENT") {
-        // Extract comment text (remove //)
-        const commentText = sibling.text.replace(/^\/\/\s*/, "").trim();
-        if (commentText) {
-          comments.unshift(commentText);
-        }
-        foundNonWhitespace = true;
-      } else if (sibling.tokenType?.name === "WS") {
-        // Check if there are multiple newlines (empty line)
-        const newlineCount = (sibling.text.match(/\n/g) || []).length;
-        if (newlineCount > 1 && foundNonWhitespace) {
-          // Empty line found after comments, stop collecting
-          break;
-        }
-      } else {
-        // Stop if we hit a non-comment, non-whitespace token
+  // Look at previous siblings only at the immediate level
+  let foundNonWhitespace = false;
+  for (let i = currentIndex - 1; i >= 0; i--) {
+    const sibling = children[i];
+    if (sibling.tokenType?.name === "SL_COMMENT") {
+      const commentText = sibling.text.replace(/^\/\/\s*/, "").trim();
+      if (commentText) {
+        comments.unshift(commentText);
+      }
+      foundNonWhitespace = true;
+    } else if (sibling.tokenType?.name === "WS") {
+      const newlineCount = (sibling.text.match(/\n/g) || []).length;
+      if (newlineCount > 1 && foundNonWhitespace) {
         break;
       }
+    } else {
+      break;
     }
-
-    // If we found comments, stop here
-    if (comments.length > 0) break;
-
-    currentNode = container;
   }
 
   return comments.length > 0 ? comments.join("\n") : undefined;

@@ -1,0 +1,5 @@
+// Product category feed
+page productCategoryFeed = /product-category-feed {
+  category_id: string;
+  category_name: string;
+}
