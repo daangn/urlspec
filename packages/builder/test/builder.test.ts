@@ -128,6 +128,66 @@ describe("URLSpec Builder", () => {
     expect(result).toContain("page rejectedList = /jobs/rejected");
   });
 
+  describe("Comment/Description Support", () => {
+    it("should output page comments", () => {
+      const spec = new URLSpec();
+      spec.addPage({
+        name: "list",
+        path: "/jobs",
+        comment: "Job listing page",
+      });
+      const result = spec.toString();
+      expect(result).toContain("// Job listing page");
+      expect(result).toContain("page list = /jobs {");
+    });
+
+    it("should output parameter comments", () => {
+      const spec = new URLSpec();
+      spec.addPage({
+        name: "list",
+        path: "/jobs",
+        parameters: [
+          { name: "sort", type: "string", comment: "Sort order" },
+        ],
+      });
+      const result = spec.toString();
+      expect(result).toContain("  // Sort order");
+      expect(result).toContain("  sort: string;");
+    });
+
+    it("should output param type comments", () => {
+      const spec = new URLSpec();
+      spec.addParamType("sortOrder", ["recent", "popular"], "Available sort orders");
+      spec.addPage({ name: "list", path: "/jobs" });
+      const result = spec.toString();
+      expect(result).toContain("// Available sort orders");
+    });
+
+    it("should output global parameter comments", () => {
+      const spec = new URLSpec();
+      spec.addGlobalParam({
+        name: "utm_source",
+        type: "string",
+        optional: true,
+        comment: "UTM source tracking",
+      });
+      spec.addPage({ name: "list", path: "/jobs" });
+      const result = spec.toString();
+      expect(result).toContain("  // UTM source tracking");
+    });
+
+    it("should output multi-line comments", () => {
+      const spec = new URLSpec();
+      spec.addPage({
+        name: "list",
+        path: "/jobs",
+        comment: "Job listing page\nDisplays all available jobs",
+      });
+      const result = spec.toString();
+      expect(result).toContain("// Job listing page\n// Displays all available jobs");
+    });
+  });
+
   describe("Security - Path Traversal Prevention", () => {
     it("should reject paths with .. traversal sequences", async () => {
       const spec = new URLSpec();

@@ -24,6 +24,9 @@ export type {
   ResolvedURLSpec,
 } from "./resolved-types";
 
+// Export CST utilities
+export { extractDescription } from "./cst-utils";
+
 // Export resolver
 export { resolve } from "./resolver";
 

@@ -1,4 +1,4 @@
-import type { LangiumDocument } from "langium";
+import type { AstNode, LangiumDocument } from "langium";
 import type {
   PageDeclaration,
   ParameterDeclaration,
@@ -10,6 +10,24 @@ import type {
   UnionType,
   URLSpecDocument,
 } from "./__generated__/ast";
+import { extractDescription } from "./cst-utils";
+
+/**
+ * Get description from a node: check $description (builder) or CST (parsed)
+ */
+function getDescription(node: AstNode): string | undefined {
+  const builderDesc = (node as any).$description;
+  if (builderDesc) return builderDesc;
+  return extractDescription(node);
+}
+
+/**
+ * Convert a description string into formatted comment lines
+ */
+function descriptionLines(desc: string | undefined, indent: string): string[] {
+  if (!desc) return [];
+  return desc.split("\n").map((line) => `${indent}// ${line}`);
+}
 
 /**
  * Print Langium AST back to .urlspec format
@@ -21,6 +39,7 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
   // Param types
   if (model.paramTypes.length > 0) {
     for (const paramType of model.paramTypes) {
+      lines.push(...descriptionLines(getDescription(paramType), ""));
       lines.push(`param ${paramType.name} = ${printType(paramType.type)};`);
     }
     lines.push("");
@@ -30,6 +49,7 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
   if (model.global) {
     lines.push("global {");
     for (const param of model.global.parameters) {
+      lines.push(...descriptionLines(getDescription(param), "  "));
       lines.push(`  ${printParameter(param)}`);
     }
     lines.push("}");
@@ -38,6 +58,7 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
 
   // Pages
   for (const page of model.pages) {
+    lines.push(...descriptionLines(getDescription(page), ""));
     lines.push(printPage(page));
     lines.push("");
   }
@@ -54,6 +75,7 @@ function printPage(page: PageDeclaration): string {
   lines.push(`page ${page.name} = ${path} {`);
 
   for (const param of page.parameters) {
+    lines.push(...descriptionLines(getDescription(param), "  "));
     lines.push(`  ${printParameter(param)}`);
   }
 

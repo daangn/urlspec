@@ -65,12 +65,17 @@ export function createTypeReference(refName: string): TypeReference {
 export function createParamTypeDeclaration(
   name: string,
   type: Type,
+  description?: string,
 ): ParamTypeDeclaration {
-  return {
+  const node = {
     $type: "ParamTypeDeclaration",
     name,
     type,
   } as ParamTypeDeclaration;
+  if (description) {
+    (node as any).$description = description;
+  }
+  return node;
 }
 
 /**
@@ -80,13 +85,18 @@ export function createParameterDeclaration(
   name: string,
   type: Type,
   optional?: boolean,
+  description?: string,
 ): ParameterDeclaration {
-  return {
+  const node = {
     $type: "ParameterDeclaration",
     name,
     type,
     optional: optional ? "?" : undefined,
   } as ParameterDeclaration;
+  if (description) {
+    (node as any).$description = description;
+  }
+  return node;
 }
 
 /**
@@ -152,13 +162,18 @@ export function createPageDeclaration(
   name: string,
   pathStr: string,
   parameters?: ParameterDeclaration[],
+  description?: string,
 ): PageDeclaration {
-  return {
+  const node = {
     $type: "PageDeclaration",
     name,
     path: parsePath(pathStr),
     parameters: parameters || [],
   } as PageDeclaration;
+  if (description) {
+    (node as any).$description = description;
+  }
+  return node;
 }
 
 /**

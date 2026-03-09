@@ -58,6 +58,7 @@ export interface ParameterDefinition {
   name: string;
   type: ParamType;
   optional?: boolean;
+  comment?: string;
 }
 
 export interface PageDefinition {
@@ -71,15 +72,16 @@ export interface PageDefinition {
  * URLSpec builder class for programmatic generation of .urlspec files
  */
 export class URLSpec {
-  private paramTypes: Map<string, ParamType> = new Map();
+  private paramTypes: Map<string, { type: ParamType; comment?: string }> =
+    new Map();
   private globalParams: ParameterDefinition[] = [];
   private pages: PageDefinition[] = [];
 
   /**
    * Add a parameter type definition
    */
-  addParamType(name: string, type: ParamType): void {
-    this.paramTypes.set(name, type);
+  addParamType(name: string, type: ParamType, comment?: string): void {
+    this.paramTypes.set(name, { type, comment });
   }
 
   /**
@@ -102,8 +104,10 @@ export class URLSpec {
   toAST(): URLSpecDocument {
     // Build param types
     const paramTypes: ParamTypeDeclaration[] = [];
-    for (const [name, type] of this.paramTypes.entries()) {
-      paramTypes.push(createParamTypeDeclaration(name, this.buildType(type)));
+    for (const [name, { type, comment }] of this.paramTypes.entries()) {
+      paramTypes.push(
+        createParamTypeDeclaration(name, this.buildType(type), comment),
+      );
     }
 
     // Build global block
@@ -121,6 +125,7 @@ export class URLSpec {
         page.name,
         page.path,
         page.parameters?.map((p) => this.buildParameter(p)),
+        page.comment,
       ),
     );
 
@@ -220,6 +225,7 @@ export class URLSpec {
       param.name,
       this.buildType(param.type),
       param.optional,
+      param.comment,
     );
   }
 }
