@@ -591,7 +591,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
       "name": "IDENTIFIER",
       "definition": {
         "$type": "RegexToken",
-        "regex": "/[a-zA-Z][a-zA-Z0-9_]*/",
+        "regex": "/[a-zA-Z][a-zA-Z0-9_.]*/",
         "parenthesized": false
       },
       "fragment": false,

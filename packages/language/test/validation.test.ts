@@ -84,6 +84,18 @@ describe("URLSpec Validation", () => {
     });
   });
 
+  describe("Page name validation", () => {
+    it("should accept page names with dots and underscores", async () => {
+      const doc = await parseFile(
+        fixture("validation-page-name-dot-underscore.urlspec"),
+      );
+
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
+    });
+  });
+
   describe("ParamType alias naming validation", () => {
     it("should accept ParamType names in camelCase", async () => {
       const doc = await parseFile(

@@ -11,7 +11,7 @@ export const URLSpecTerminals = {
     PATH_SEGMENT: /\/[a-zA-Z0-9_.\-]+/,
     PARAM_PREFIX: /\/:/,
     ROOT_PATH: /\//,
-    IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_]*/,
+    IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_.]*/,
     STRING: /"([^"\\]|\\.)*"/,
     WS: /\s+/,
 };
@@ -89,7 +89,7 @@ export function isParameterDeclaration(item: unknown): item is ParameterDeclarat
 export type ParameterName = 'global' | 'page' | 'param' | 'string' | string;
 
 export function isParameterName(item: unknown): item is ParameterName {
-    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_]*/.test(item)));
+    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_.]*/.test(item)));
 }
 
 export interface ParamTypeDeclaration extends langium.AstNode {

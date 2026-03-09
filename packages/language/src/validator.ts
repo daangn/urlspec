@@ -47,12 +47,12 @@ export class URLSpecValidator {
     page: URLSpecAstType["PageDeclaration"],
     accept: ValidationAcceptor,
   ): void => {
-    // Check page name is camelCase
-    const camelCasePattern = /^[a-z][a-zA-Z0-9]*$/;
-    if (!camelCasePattern.test(page.name)) {
+    // Check page name starts with lowercase letter and contains only allowed characters
+    const pageNamePattern = /^[a-z][a-zA-Z0-9._]*$/;
+    if (!pageNamePattern.test(page.name)) {
       accept(
         "error",
-        "Page names must be in camelCase format (start with lowercase letter, followed by letters and numbers only).",
+        "Page names must start with a lowercase letter, followed by letters, numbers, dots, or underscores.",
         {
           node: page,
           property: "name",
