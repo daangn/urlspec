@@ -1,5 +1,13 @@
 # @urlspec/builder
 
+## 0.3.2
+
+### Patch Changes
+
+- 65ea99e: feat: allow `.` and `_` in page names
+- Updated dependencies [65ea99e]
+  - @urlspec/language@0.4.2
+
 ## 0.3.1
 
 ### Patch Changes

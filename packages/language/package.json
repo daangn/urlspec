@@ -1,6 +1,6 @@
 {
   "name": "@urlspec/language",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Core language implementation for URLSpec using Langium",
   "keywords": [
     "urlspec",
