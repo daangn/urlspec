@@ -30,10 +30,8 @@ URLSpec is a domain-specific language (DSL) that brings type safety and clarity 
 Create a `.urlspec` file:
 
 ```urlspec
-namespace "jobs";
-
-param sort_order = "recent" | "popular" | "trending";
-param job_status = "active" | "closed" | "draft";
+param sortOrder = "recent" | "popular" | "trending";
+param jobStatus = "active" | "closed" | "draft";
 
 global {
   referrer?: "jobs" | "hello";
@@ -42,27 +40,27 @@ global {
 
 page list = /jobs {
   category?: string;
-  sort: sort_order;
+  sort: sortOrder;
 }
 
 page detail = /jobs/:job_id {
   job_id: string;
   preview?: "true" | "false";
-  status?: job_status;
+  status?: jobStatus;
 }
 ```
 
 ### 2. Use in Your Code
 
 ```typescript
-import { resolve } from '@urlspec/language';
+import { parse, resolve } from '@urlspec/language';
 
-const spec = resolve(urlspecContent);
+const doc = await parse(urlspecContent);
+const spec = resolve(doc);
 
 // Access resolved structure
-console.log(spec.namespace); // "jobs"
-console.log(spec.pages.list.path); // "/jobs"
-console.log(spec.pages.list.parameters.sort.type); // ["recent", "popular", "trending"]
+console.log(spec.pages[0].path); // "/jobs"
+console.log(spec.pages[0].parameters[0].type); // { kind: 'union', values: ['recent', 'popular', 'trending'] }
 ```
 
 ### 3. Build Programmatically
@@ -71,14 +69,13 @@ console.log(spec.pages.list.parameters.sort.type); // ["recent", "popular", "tre
 import { URLSpec } from '@urlspec/builder';
 
 const spec = new URLSpec();
-spec.setNamespace('jobs');
-spec.addParamType('sort_order', ['recent', 'popular', 'trending']);
+spec.addParamType('sortOrder', ['recent', 'popular', 'trending']);
 spec.addPage({
   name: 'list',
   path: '/jobs',
   parameters: [
     { name: 'category', type: 'string', optional: true },
-    { name: 'sort', type: 'sort_order' },
+    { name: 'sort', type: 'sortOrder' },
   ],
 });
 

@@ -8,7 +8,7 @@
     },
     {
       "name": "keyword.control.urlspec",
-      "match": "\\b(global|namespace|page|param|string)\\b"
+      "match": "\\b(global|page|param|string)\\b"
     },
     {
       "name": "string.quoted.double.urlspec",

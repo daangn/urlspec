@@ -3,7 +3,6 @@
 ## 최근 주요 변경사항
 
 ### ✨ 새로운 기능
-- **Endpoint 선언**: 파일 레벨에서 `endpoint` 키워드로 API 엔드포인트 설정 가능
 - **주석 지원**: `//` 형태의 한 줄 주석 완전 지원 (파일 어디서나 사용 가능)
 - **Path에 하이픈 지원**: URL 경로에 하이픈 포함 가능 (`/api/list-items`, `/user-profile`)
 - **숫자 경로 지원**: URL 경로에 숫자만 있는 세그먼트 사용 가능 (`/404`, `/500`, `/api/123`)
@@ -20,10 +19,6 @@
   - `MyParam` (PascalCase)
   - `page`, `param`, `global`, `string` (keywords)
   - 모두 사용 가능합니다!
-
-### 📁 환경별 Endpoint 관리
-파일 단위로 endpoint를 선언하므로, 환경별로 다른 파일 사용을 권장:
-- `jobs.dev.urlspec`, `jobs.staging.urlspec`, `jobs.prod.urlspec`
 
 ---
 
@@ -77,7 +72,6 @@ urlspec/
 - **핵심 파일**:
   - `src/index.ts` - `URLSpec` 클래스와 빌더 API
 - **주요 메서드**:
-  - `setEndpoint(url)` - endpoint 설정 (선택적)
   - `addParamType(name, type)` - param type 추가 (camelCase)
   - `addGlobalParam(param)` - global parameter 추가 (네이밍 제약 없음)
   - `addPage(page)` - page 추가 (camelCase 이름, 파라미터는 네이밍 제약 없음)
@@ -219,19 +213,6 @@ page itemDetail = /items/:page {  // 경로 파라미터에도 키워드 사용 
 - `"literal"` - 문자열 리터럴
 - `"a" | "b" | "c"` - 유니온 타입
 - `paramTypeName` - 타입 참조 (camelCase)
-
-### 환경별 Endpoint 관리
-
-Endpoint 설정은 파일 레벨에서 선언하므로, 환경별로 다른 파일을 사용하는 패턴을 권장합니다:
-
-```
-specs/
-├── jobs.dev.urlspec      # endpoint "https://dev-api.example.com";
-├── jobs.staging.urlspec  # endpoint "https://staging-api.example.com";
-└── jobs.prod.urlspec     # endpoint "https://api.example.com";
-```
-
-각 파일은 동일한 page 정의를 가지지만 endpoint만 다르게 설정하여 환경별로 사용할 수 있습니다.
 
 ### 검증 규칙
 
@@ -380,16 +361,17 @@ await spec.writeFile('./output.urlspec');
 ```typescript
 import { parse } from '@urlspec/language';
 
-const result = await parse(source);
-console.log(result.diagnostics); // 검증 에러 확인
-console.log(result.value); // AST 출력
+const doc = await parse(source);
+console.log(doc.diagnostics); // 검증 에러 확인
+console.log(doc.parseResult.value); // AST 출력
 ```
 
 ### 리졸버 문제 디버깅
 ```typescript
-import { resolve } from '@urlspec/language';
+import { parse, resolve } from '@urlspec/language';
 
-const resolved = await resolve(source);
+const doc = await parse(source);
+const resolved = resolve(doc);
 console.log(resolved.pages); // 리졸브된 페이지 구조 확인
 ```
 

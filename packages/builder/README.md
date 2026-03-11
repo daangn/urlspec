@@ -156,7 +156,7 @@ Add a page definition.
 
 ```typescript
 spec.addPage({
-  name: 'user_profile',
+  name: 'userProfile',
   path: '/users/:user_id',
   parameters: [
     { name: 'user_id', type: 'string' },
@@ -251,7 +251,7 @@ const statuses = ['pending', 'approved', 'rejected', 'archived'];
 // Generate a page for each status
 for (const status of statuses) {
   spec.addPage({
-    name: `${status}_jobs`,
+    name: `${status}Jobs`,
     path: `/jobs/${status}`,
     parameters: [
       { name: 'page', type: 'string', optional: true },
@@ -374,7 +374,11 @@ const spec = new URLSpec();
 for (const [path, methods] of Object.entries(openAPISchema.paths)) {
   const getMethod = methods.get;
   if (getMethod) {
-    const name = path.replace(/\//g, '_').replace(/[{}]/g, '');
+    // Convert "/users/{userId}" to camelCase name like "users" or "usersById"
+    const segments = path.split('/').filter(Boolean);
+    const name = segments
+      .map((s, i) => s.startsWith('{') ? 'by' + s[1].toUpperCase() + s.slice(2, -1) : (i === 0 ? s : s[0].toUpperCase() + s.slice(1)))
+      .join('');
     const urlspecPath = path.replace(/{(\w+)}/g, ':$1');
 
     spec.addPage({
@@ -464,7 +468,6 @@ import {
 } from '@urlspec/builder';
 
 const ast = createURLSpecDocument({
-  // Namespace removed from URLSpec
   pages: [
     createPageDeclaration(
       'users',

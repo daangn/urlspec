@@ -84,13 +84,13 @@ function processSpec(spec: ResolvedURLSpec) {
     console.log(`Path: ${page.path}`);
 
     page.pathSegments.forEach((segment: ResolvedPathSegment) => {
-      if (segment.kind === 'dynamic') {
-        console.log(`  Dynamic param: ${segment.name}`);
+      if (segment.type === 'parameter') {
+        console.log(`  Dynamic param: ${segment.value}`);
       }
     });
 
-    Object.entries(page.parameters).forEach(([name, param]) => {
-      console.log(`  Query param: ${name} (${param.optional ? 'optional' : 'required'})`);
+    page.parameters.forEach((param: ResolvedParameter) => {
+      console.log(`  Param: ${param.name} (${param.optional ? 'optional' : 'required'}, ${param.source})`);
     });
   });
 }
@@ -121,22 +121,22 @@ console.log(ast.pages[0].name); // "home"
 console.log(ast.pages[0].parameters[0].name); // "query"
 ```
 
-### `resolve(input: string): ResolvedURLSpec`
+### `resolve(doc: LangiumDocument<URLSpecDocument>): ResolvedURLSpec`
 
-Parses and resolves URLSpec into a developer-friendly structure with:
+Resolves a parsed URLSpec document into a developer-friendly structure with:
 - Global parameters merged into each page
 - Type references resolved to actual types
 - Path segments parsed and categorized
 
 **Parameters:**
-- `input` - URLSpec source code as a string
+- `doc` - A Langium document returned by `parse()`
 
 **Returns:**
 - `ResolvedURLSpec` object with fully resolved structure
 
 **Example:**
 ```typescript
-const spec = resolve(`
+const doc = await parse(`
 param category = "electronics" | "clothing" | "food";
 
 global {
@@ -147,15 +147,17 @@ page products = /products {
   cat: category;
 }
 `);
+const spec = resolve(doc);
 
 console.log(spec.paramTypes[0]);
 // { name: 'category', type: { kind: 'union', values: ['electronics', 'clothing', 'food'] } }
 
 const productsPage = spec.pages[0];
-console.log(productsPage.parameters.cat.type);
+const catParam = productsPage.parameters.find(p => p.name === 'cat');
+console.log(catParam?.type);
 // Resolved to actual union type, not a reference
-console.log(productsPage.parameters.utm_source);
-// Global parameter merged into page
+const utmParam = productsPage.parameters.find(p => p.name === 'utm_source');
+console.log(utmParam?.source); // "global"
 ```
 
 ### `print(urlSpec: URLSpecModel): string`
@@ -201,10 +203,9 @@ Top-level resolved structure representing an entire URLSpec document.
 
 ```typescript
 interface ResolvedURLSpec {
-  endpoint?: string;
   paramTypes: ResolvedParamType[];
-  globalParameters: ResolvedParameter[];
   pages: ResolvedPage[];
+  global?: ResolvedParameter[];
 }
 ```
 
@@ -231,6 +232,8 @@ interface ResolvedParameter {
   name: string;
   optional: boolean;
   type: ResolvedType;
+  source: "global" | "page";
+  description?: string;
 }
 ```
 
@@ -250,9 +253,10 @@ type ResolvedType =
 Represents a segment of a URL path.
 
 ```typescript
-type ResolvedPathSegment =
-  | { kind: 'static'; value: string }
-  | { kind: 'dynamic'; name: string };
+interface ResolvedPathSegment {
+  type: "static" | "parameter";
+  value: string;
+}
 ```
 
 ## Two-Level API Design
@@ -289,10 +293,11 @@ ast.pages.forEach(page => {
 
 **Example:**
 ```typescript
-const spec = resolve(input);
+const doc = await parse(input);
+const spec = resolve(doc);
 
 // Easy access to resolved data
-spec.pages.list.parameters.forEach(param => {
+spec.pages[0].parameters.forEach(param => {
   // Type is already resolved, no need to lookup references
   console.log(param.type);
 });
@@ -316,35 +321,16 @@ if (document.parseResult.parserErrors.length > 0) {
 }
 ```
 
-### Custom Validation
-
-```typescript
-import { createURLSpecServices } from '@urlspec/language';
-
-const services = createURLSpecServices();
-const validator = services.validation.ValidationRegistry;
-
-// Add custom validation rules
-validator.register({
-  URLSpecModel(model, accept) {
-    if (model.pages.length === 0) {
-      accept('warning', 'URLSpec should have at least one page', {
-        node: model,
-      });
-    }
-  },
-});
-```
-
 ### Working with Path Segments
 
 ```typescript
-const spec = resolve(`
+const doc = await parse(`
 page article = /blog/:category/:article_id {
   category: string;
   article_id: string;
 }
 `);
+const spec = resolve(doc);
 
 const articlePage = spec.pages[0];
 
@@ -355,7 +341,7 @@ articlePage.pathSegments.forEach(segment => {
     console.log(`Dynamic: ${segment.value}`);
     // Get the parameter details
     const param = articlePage.parameters.find(p => p.name === segment.value);
-    console.log(`  Optional: ${param.optional}`);
+    console.log(`  Optional: ${param?.optional}`);
   }
 });
 ```
@@ -368,7 +354,7 @@ URLSpec is defined using Langium grammar. Key syntax elements:
 
 ```urlspec
 param status = "active" | "inactive" | "pending";
-param sort_order = "asc" | "desc";
+param sortOrder = "asc" | "desc";
 ```
 
 ### Global Parameters
@@ -413,7 +399,7 @@ string
 "small" | "medium" | "large"
 
 // Type reference
-sort_order  // References a param type
+sortOrder  // References a param type
 ```
 
 ## Development
