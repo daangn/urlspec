@@ -1,5 +1,5 @@
 // Job listing and detail pages
-// This namespace contains all job-related URL specifications
+// Contains all job-related URL specifications
 
 // Sort order for job listings
 // Used to determine how jobs are displayed

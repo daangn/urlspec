@@ -3,9 +3,7 @@ import { parseFile, resolve } from "./dist/index.mjs";
 const doc = await parseFile("../../examples/example.urlspec");
 const resolved = resolve(doc);
 
-console.log("Namespace:", resolved.namespace);
-console.log("Namespace Description:", resolved.namespaceDescription);
-console.log("\nPages:");
+console.log("Pages:");
 for (const page of resolved.pages) {
   console.log(`  ${page.name}:`, page.description);
   console.log(`    Path:`, page.path);
