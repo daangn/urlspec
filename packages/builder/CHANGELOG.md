@@ -1,5 +1,13 @@
 # @urlspec/builder
 
+## 0.4.1
+
+### Patch Changes
+
+- 0781883: fix: seperate page description when new line inserted between
+- Updated dependencies [0781883]
+  - @urlspec/language@0.5.1
+
 ## 0.4.0
 
 ### Minor Changes
