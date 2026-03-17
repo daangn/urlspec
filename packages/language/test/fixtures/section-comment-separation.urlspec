@@ -1,0 +1,13 @@
+// =============================================
+// 에스크로 (Escrow)
+// =============================================
+
+// 에스크로 결제 주문 페이지
+page escrowPaymentOrder = /escrow/payment {
+  channelId: string;
+  amount: string;
+}
+
+page noDescription = /no-desc {
+  channelId: string;
+}

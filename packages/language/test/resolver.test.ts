@@ -164,4 +164,11 @@ describe("URLSpec Resolver", () => {
       "Status of a job posting",
     );
   });
+
+  it("should not include section header comment separated by blank line", async () => {
+    const doc = await parseFile(fixture("section-comment-separation.urlspec"));
+    const spec = resolve(doc);
+    expect(spec.pages[0]?.description).toBe("에스크로 결제 주문 페이지");
+    expect(spec.pages[1]?.description).toBeUndefined();
+  });
 });
