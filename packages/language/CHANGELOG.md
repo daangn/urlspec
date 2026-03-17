@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.5.1
+
+### Patch Changes
+
+- 0781883: fix: seperate page description when new line inserted between
+
 ## 0.5.0
 
 ### Minor Changes
