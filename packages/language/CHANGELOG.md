@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.7.0
+
+### Minor Changes
+
+- b9d6594: fix: throw `parse()` when validation failed
+
 ## 0.6.0
 
 ### Minor Changes
