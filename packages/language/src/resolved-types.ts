@@ -20,7 +20,18 @@ export interface ResolvedPage {
   path: string;
   pathSegments: ResolvedPathSegment[];
   parameters: ResolvedParameter[];
+  variants?: ResolvedVariantGroup;
   description?: string;
+}
+
+export interface ResolvedVariantGroup {
+  discriminant: string;
+  variants: ResolvedVariant[];
+}
+
+export interface ResolvedVariant {
+  value: string;
+  parameters: ResolvedParameter[];
 }
 
 export interface ResolvedPathSegment {

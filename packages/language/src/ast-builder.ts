@@ -15,6 +15,7 @@ import type {
   TypeReference,
   UnionType,
   URLSpecDocument,
+  WhenClause,
 } from "./__generated__/ast";
 
 /**
@@ -156,6 +157,22 @@ export function createGlobalBlock(
 }
 
 /**
+ * Create a when clause for discriminated union parameters
+ */
+export function createWhenClause(
+  discriminant: string,
+  value: string,
+  parameters: ParameterDeclaration[],
+): WhenClause {
+  return {
+    $type: "WhenClause",
+    discriminant,
+    value: value.startsWith('"') ? value : `"${value}"`,
+    parameters,
+  } as WhenClause;
+}
+
+/**
  * Create a page declaration
  */
 export function createPageDeclaration(
@@ -163,12 +180,14 @@ export function createPageDeclaration(
   pathStr: string,
   parameters?: ParameterDeclaration[],
   description?: string,
+  whenClauses?: WhenClause[],
 ): PageDeclaration {
   const node = {
     $type: "PageDeclaration",
     name,
     path: parsePath(pathStr),
     parameters: parameters || [],
+    whenClauses: whenClauses || [],
   } as PageDeclaration;
   if (description) {
     (node as any).$description = description;

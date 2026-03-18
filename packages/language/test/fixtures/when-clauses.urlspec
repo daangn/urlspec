@@ -1,0 +1,11 @@
+page search = /search {
+  q?: string;
+  when type = "product" {
+    category?: string;
+    price?: string;
+  }
+  when type = "user" {
+    role?: string;
+    company?: string;
+  }
+}

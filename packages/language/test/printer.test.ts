@@ -68,6 +68,28 @@ describe("URLSpec Printer", () => {
     expect(printed).toContain("  // Preview mode flag");
   });
 
+  it("should print when clauses", async () => {
+    const doc = await parseFile(fixture("when-clauses.urlspec"));
+    const printed = print(doc);
+
+    expect(printed).toContain('when type = "product" {');
+    expect(printed).toContain('when type = "user" {');
+    expect(printed).toContain("    category?: string;");
+    expect(printed).toContain("    role?: string;");
+  });
+
+  it("should roundtrip when clauses through print-parse-print", async () => {
+    const doc1 = await parseFile(fixture("when-clauses.urlspec"));
+    const printed1 = print(doc1);
+
+    const doc2 = await parse(printed1);
+    expect(doc2.parseResult.lexerErrors).toHaveLength(0);
+    expect(doc2.parseResult.parserErrors).toHaveLength(0);
+
+    const printed2 = print(doc2);
+    expect(printed2).toBe(printed1);
+  });
+
   it("should roundtrip descriptions through print-parse-print", async () => {
     const doc1 = await parseFile(fixture("with-descriptions.urlspec"));
     const printed1 = print(doc1);

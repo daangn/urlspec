@@ -27,6 +27,7 @@ export type URLSpecKeywordNames =
     | "page"
     | "param"
     | "string"
+    | "when"
     | "{"
     | "|"
     | "}";
@@ -54,13 +55,15 @@ export interface PageDeclaration extends langium.AstNode {
     name: string;
     parameters: Array<ParameterDeclaration>;
     path: Path;
+    whenClauses: Array<WhenClause>;
 }
 
 export const PageDeclaration = {
     $type: 'PageDeclaration',
     name: 'name',
     parameters: 'parameters',
-    path: 'path'
+    path: 'path',
+    whenClauses: 'whenClauses'
 } as const;
 
 export function isPageDeclaration(item: unknown): item is PageDeclaration {
@@ -68,7 +71,7 @@ export function isPageDeclaration(item: unknown): item is PageDeclaration {
 }
 
 export interface ParameterDeclaration extends langium.AstNode {
-    readonly $container: GlobalBlock | PageDeclaration;
+    readonly $container: GlobalBlock | PageDeclaration | WhenClause;
     readonly $type: 'ParameterDeclaration';
     name: ParameterName;
     optional?: '?';
@@ -86,10 +89,10 @@ export function isParameterDeclaration(item: unknown): item is ParameterDeclarat
     return reflection.isInstance(item, ParameterDeclaration.$type);
 }
 
-export type ParameterName = 'global' | 'page' | 'param' | 'string' | string;
+export type ParameterName = 'global' | 'page' | 'param' | 'string' | 'when' | string;
 
 export function isParameterName(item: unknown): item is ParameterName {
-    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_.]*/.test(item)));
+    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || item === 'when' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_.]*/.test(item)));
 }
 
 export interface ParamTypeDeclaration extends langium.AstNode {
@@ -231,6 +234,25 @@ export function isURLSpecDocument(item: unknown): item is URLSpecDocument {
     return reflection.isInstance(item, URLSpecDocument.$type);
 }
 
+export interface WhenClause extends langium.AstNode {
+    readonly $container: PageDeclaration;
+    readonly $type: 'WhenClause';
+    discriminant: ParameterName;
+    parameters: Array<ParameterDeclaration>;
+    value: string;
+}
+
+export const WhenClause = {
+    $type: 'WhenClause',
+    discriminant: 'discriminant',
+    parameters: 'parameters',
+    value: 'value'
+} as const;
+
+export function isWhenClause(item: unknown): item is WhenClause {
+    return reflection.isInstance(item, WhenClause.$type);
+}
+
 export type URLSpecAstType = {
     GlobalBlock: GlobalBlock
     PageDeclaration: PageDeclaration
@@ -244,6 +266,7 @@ export type URLSpecAstType = {
     TypeReference: TypeReference
     URLSpecDocument: URLSpecDocument
     UnionType: UnionType
+    WhenClause: WhenClause
 }
 
 export class URLSpecAstReflection extends langium.AbstractAstReflection {
@@ -270,6 +293,10 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
                 },
                 path: {
                     name: PageDeclaration.path
+                },
+                whenClauses: {
+                    name: PageDeclaration.whenClauses,
+                    defaultValue: []
                 }
             },
             superTypes: []
@@ -386,6 +413,22 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
                 }
             },
             superTypes: [Type.$type]
+        },
+        WhenClause: {
+            name: WhenClause.$type,
+            properties: {
+                discriminant: {
+                    name: WhenClause.discriminant
+                },
+                parameters: {
+                    name: WhenClause.parameters,
+                    defaultValue: []
+                },
+                value: {
+                    name: WhenClause.value
+                }
+            },
+            superTypes: []
         }
     } as const satisfies langium.AstMetaData
 }

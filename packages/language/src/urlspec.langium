@@ -12,7 +12,10 @@ GlobalBlock:
     'global' '{' (parameters+=ParameterDeclaration)* '}';
 
 PageDeclaration:
-    'page' name=IDENTIFIER '=' path=Path '{' (parameters+=ParameterDeclaration)* '}';
+    'page' name=IDENTIFIER '=' path=Path '{' (parameters+=ParameterDeclaration)* (whenClauses+=WhenClause)* '}';
+
+WhenClause:
+    'when' discriminant=ParameterName '=' value=STRING '{' (parameters+=ParameterDeclaration)* '}';
 
 Path:
     root=ROOT_PATH | segments+=PathSegment+;
@@ -24,7 +27,7 @@ ParameterDeclaration:
     name=ParameterName optional='?'? ':' type=Type ';';
 
 ParameterName returns string:
-    IDENTIFIER | 'page' | 'param' | 'global' | 'string';
+    IDENTIFIER | 'page' | 'param' | 'global' | 'string' | 'when';
 
 Type:
     UnionType | StringLiteralType | TypeReference | StringKeyword;

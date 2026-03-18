@@ -8,6 +8,7 @@ import type {
   TypeReference,
   UnionType,
   URLSpecDocument,
+  WhenClause,
 } from "./__generated__/ast";
 import { extractDescription } from "./cst-utils";
 import type {
@@ -17,6 +18,8 @@ import type {
   ResolvedPathSegment,
   ResolvedType,
   ResolvedURLSpec,
+  ResolvedVariant,
+  ResolvedVariantGroup,
 } from "./resolved-types";
 
 /**
@@ -61,14 +64,17 @@ function resolvePage(
 ): ResolvedPage {
   // Handle root path
   if (page.path.root) {
+    const rootPageParams = page.parameters.map((p) =>
+      resolveParameter(p, "page"),
+    );
+    const rootParameters = [...globalParams, ...rootPageParams];
+    const rootVariants = resolveVariants(page.whenClauses, rootParameters);
     return {
       name: page.name,
       path: "/",
       pathSegments: [],
-      parameters: [
-        ...globalParams,
-        ...page.parameters.map((p) => resolveParameter(p, "page")),
-      ],
+      parameters: rootParameters,
+      variants: rootVariants,
       description: extractDescription(page),
     };
   }
@@ -98,13 +104,56 @@ function resolvePage(
   // Merge global and page parameters
   const parameters = [...globalParams, ...pageParams];
 
+  // Resolve when clauses (discriminated union)
+  const variants: ResolvedVariantGroup | undefined = resolveVariants(
+    page.whenClauses,
+    parameters,
+  );
+
   return {
     name: page.name,
     path,
     pathSegments,
     parameters,
+    variants,
     description: extractDescription(page),
   };
+}
+
+/**
+ * Resolve when clauses into a ResolvedVariantGroup.
+ * Also appends the discriminant parameter (as a union of all variant values)
+ * to the `parameters` array so existing consumers see it alongside other params.
+ */
+function resolveVariants(
+  whenClauses: WhenClause[],
+  parameters: ResolvedParameter[],
+): ResolvedVariantGroup | undefined {
+  if (!whenClauses || whenClauses.length === 0) return undefined;
+
+  // biome-ignore lint/style/noNonNullAssertion: length checked above
+  const discriminant = whenClauses[0]!.discriminant;
+  const values = whenClauses.map((w) => w.value.replace(/^"|"$/g, ""));
+
+  // Add discriminant as a required parameter with the union of all variant values
+  const discriminantType: ResolvedType =
+    values.length === 1
+      ? { kind: "literal", value: values[0] ?? "" }
+      : { kind: "union", values };
+
+  parameters.push({
+    name: discriminant,
+    optional: false,
+    type: discriminantType,
+    source: "page",
+  });
+
+  const variants: ResolvedVariant[] = whenClauses.map((w) => ({
+    value: w.value.replace(/^"|"$/g, ""),
+    parameters: w.parameters.map((p) => resolveParameter(p, "page")),
+  }));
+
+  return { discriminant, variants };
 }
 
 function resolveParameter(

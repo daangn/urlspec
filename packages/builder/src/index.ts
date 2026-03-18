@@ -14,6 +14,7 @@ import {
   createTypeReference,
   createUnionType,
   createURLSpecDocument,
+  createWhenClause,
   type GlobalBlock,
   type PageDeclaration,
   type ParameterDeclaration,
@@ -21,6 +22,7 @@ import {
   print,
   type Type,
   type URLSpecDocument,
+  type WhenClause,
 } from "@urlspec/language";
 
 // Re-export AST types
@@ -37,6 +39,7 @@ export type {
   TypeReference,
   UnionType,
   URLSpecDocument,
+  WhenClause,
 } from "@urlspec/language";
 // Re-export AST builder functions for convenience
 export {
@@ -49,6 +52,7 @@ export {
   createTypeReference,
   createUnionType,
   createURLSpecDocument,
+  createWhenClause,
   parsePath,
 } from "@urlspec/language";
 
@@ -61,10 +65,21 @@ export interface ParameterDefinition {
   comment?: string;
 }
 
+export interface VariantDefinition {
+  value: string;
+  parameters?: ParameterDefinition[];
+}
+
+export interface DiscriminatedVariants {
+  discriminant: string;
+  variants: VariantDefinition[];
+}
+
 export interface PageDefinition {
   name: string;
   path: string;
   parameters?: ParameterDefinition[];
+  when?: DiscriminatedVariants;
   comment?: string;
 }
 
@@ -120,14 +135,24 @@ export class URLSpec {
     }
 
     // Build pages
-    const pages: PageDeclaration[] = this.pages.map((page) =>
-      createPageDeclaration(
+    const pages: PageDeclaration[] = this.pages.map((page) => {
+      const whenClauses: WhenClause[] = page.when
+        ? page.when.variants.map((v) =>
+            createWhenClause(
+              page.when!.discriminant,
+              v.value,
+              v.parameters?.map((p) => this.buildParameter(p)) ?? [],
+            ),
+          )
+        : [];
+      return createPageDeclaration(
         page.name,
         page.path,
         page.parameters?.map((p) => this.buildParameter(p)),
         page.comment,
-      ),
-    );
+        whenClauses.length > 0 ? whenClauses : undefined,
+      );
+    });
 
     return createURLSpecDocument({
       paramTypes,
