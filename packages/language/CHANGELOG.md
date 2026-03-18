@@ -1,5 +1,11 @@
 # @urlspec/language
 
+## 0.6.0
+
+### Minor Changes
+
+- 33ee635: feat: support discriminated union with `when` syntax in page parameter
+
 ## 0.5.1
 
 ### Patch Changes
