@@ -1,6 +1,6 @@
 {
   "name": "@urlspec/builder",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Programmatic API to build URLSpec files",
   "keywords": [
     "urlspec",
@@ -37,7 +37,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
-    "@urlspec/language": "^0.5.1"
+    "@urlspec/language": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "24",

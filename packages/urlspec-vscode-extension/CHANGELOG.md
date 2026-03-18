@@ -1,5 +1,16 @@
 # urlspec-vscode-extension
 
+## 0.5.0
+
+### Minor Changes
+
+- 33ee635: feat: support discriminated union with `when` syntax in page parameter
+
+### Patch Changes
+
+- Updated dependencies [33ee635]
+  - @urlspec/language@0.6.0
+
 ## 0.4.4
 
 ### Patch Changes
