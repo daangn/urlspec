@@ -110,18 +110,9 @@ describe("URLSpec Validation", () => {
 
   describe("Path parameter validation", () => {
     it("should require path parameters to be declared in parameter block", async () => {
-      const doc = await parseFile(
-        fixture("validation-path-param-missing.urlspec"),
-      );
-
-      // Should have validation error for missing job_id declaration
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
-
-      // Check that the error message mentions the missing path parameter
-      const hasJobIdError = errors.some((e) => e.message.includes("job_id"));
-      expect(hasJobIdError).toBe(true);
+      await expect(
+        parseFile(fixture("validation-path-param-missing.urlspec")),
+      ).rejects.toThrow("job_id");
     });
 
     it("should accept path parameters when declared in parameter block", async () => {
@@ -135,19 +126,9 @@ describe("URLSpec Validation", () => {
     });
 
     it("should require all path parameters to be declared", async () => {
-      const doc = await parseFile(
-        fixture("validation-path-param-multiple-missing.urlspec"),
-      );
-
-      // Should have validation error for missing comment_id declaration
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
-
-      const hasCommentIdError = errors.some((e) =>
-        e.message.includes("comment_id"),
-      );
-      expect(hasCommentIdError).toBe(true);
+      await expect(
+        parseFile(fixture("validation-path-param-multiple-missing.urlspec")),
+      ).rejects.toThrow("comment_id");
     });
 
     it("should accept multiple path parameters when all are declared", async () => {
@@ -182,47 +163,29 @@ describe("URLSpec Validation", () => {
     });
 
     it("should reject multiple discriminants in when clauses", async () => {
-      const doc = await parseFile(
-        fixture("when-clauses-multiple-discriminants.urlspec"),
-      );
-
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors.some((e) => e.message.includes("discriminant"))).toBe(true);
+      await expect(
+        parseFile(fixture("when-clauses-multiple-discriminants.urlspec")),
+      ).rejects.toThrow("discriminant");
     });
 
     it("should reject duplicate when clause values", async () => {
-      const doc = await parseFile(
-        fixture("when-clauses-duplicate-value.urlspec"),
-      );
-
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors.some((e) => e.message.includes("Duplicate"))).toBe(true);
+      await expect(
+        parseFile(fixture("when-clauses-duplicate-value.urlspec")),
+      ).rejects.toThrow("Duplicate");
     });
 
     it("should reject discriminant declared in parameter block", async () => {
-      const doc = await parseFile(
-        fixture("when-clauses-discriminant-in-params.urlspec"),
-      );
-
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors.some((e) => e.message.includes("type"))).toBe(true);
+      await expect(
+        parseFile(fixture("when-clauses-discriminant-in-params.urlspec")),
+      ).rejects.toThrow("type");
     });
   });
 
   describe("Combined validation scenarios", () => {
     it("should validate path parameter declaration", async () => {
-      const doc = await parseFile(
-        fixture("validation-combined-invalid.urlspec"),
-      );
-
-      expect(doc.diagnostics?.length ?? 0).toBeGreaterThan(0);
-      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
-
-      // Should have at least 1 error: missing job_id (parameter naming is no longer restricted)
-      expect(errors.length).toBeGreaterThanOrEqual(1);
+      await expect(
+        parseFile(fixture("validation-combined-invalid.urlspec")),
+      ).rejects.toThrow("URLSpec validation failed");
     });
 
     it("should accept valid specification with all rules followed", async () => {

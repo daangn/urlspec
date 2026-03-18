@@ -20,6 +20,13 @@ export async function parse(
     await URLSpec.validation.DocumentValidator.validateDocument(document);
   // Manually set diagnostics on the document
   (document as any).diagnostics = diagnostics;
+
+  const errors = diagnostics.filter((d) => d.severity === 1);
+  if (errors.length > 0) {
+    const messages = errors.map((d) => d.message).join("\n");
+    throw new Error(`URLSpec validation failed:\n${messages}`);
+  }
+
   return document;
 }
 
