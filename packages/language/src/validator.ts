@@ -85,5 +85,39 @@ export class URLSpecValidator {
         );
       }
     }
+
+    // Validate when clauses
+    if (page.whenClauses && page.whenClauses.length > 0) {
+      const discriminants = new Set(page.whenClauses.map((w) => w.discriminant));
+      if (discriminants.size > 1) {
+        accept(
+          "error",
+          `All 'when' clauses must use the same discriminant parameter. Found: ${[...discriminants].join(", ")}.`,
+          { node: page },
+        );
+      }
+
+      const seenValues = new Set<string>();
+      for (const whenClause of page.whenClauses) {
+        const val = whenClause.value;
+        if (seenValues.has(val)) {
+          accept(
+            "error",
+            `Duplicate 'when' clause value ${val}.`,
+            { node: whenClause, property: "value" },
+          );
+        }
+        seenValues.add(val);
+      }
+
+      const discriminant = page.whenClauses[0]?.discriminant;
+      if (discriminant && declaredParams.has(discriminant)) {
+        accept(
+          "error",
+          `Discriminant '${discriminant}' must not be declared in the parameter block when using 'when' clauses.`,
+          { node: page },
+        );
+      }
+    }
   };
 }

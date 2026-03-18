@@ -79,6 +79,18 @@ function printPage(page: PageDeclaration): string {
     lines.push(`  ${printParameter(param)}`);
   }
 
+  for (const whenClause of page.whenClauses) {
+    const quotedValue = whenClause.value.startsWith('"')
+      ? whenClause.value
+      : `"${whenClause.value}"`;
+    lines.push(`  when ${whenClause.discriminant} = ${quotedValue} {`);
+    for (const param of whenClause.parameters) {
+      lines.push(...descriptionLines(getDescription(param), "    "));
+      lines.push(`    ${printParameter(param)}`);
+    }
+    lines.push("  }");
+  }
+
   lines.push("}");
 
   return lines.join("\n");

@@ -1,0 +1,6 @@
+page search = /search {
+  type: string;
+  when type = "product" {
+    category?: string;
+  }
+}

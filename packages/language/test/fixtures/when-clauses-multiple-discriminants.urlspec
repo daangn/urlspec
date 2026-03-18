@@ -1,0 +1,8 @@
+page search = /search {
+  when type = "product" {
+    category?: string;
+  }
+  when source = "web" {
+    referrer?: string;
+  }
+}

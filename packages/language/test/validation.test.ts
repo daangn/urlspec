@@ -172,6 +172,46 @@ describe("URLSpec Validation", () => {
     });
   });
 
+  describe("When clause validation", () => {
+    it("should accept valid when clauses with single discriminant", async () => {
+      const doc = await parseFile(fixture("when-clauses.urlspec"));
+
+      expect(doc.parseResult.lexerErrors).toHaveLength(0);
+      expect(doc.parseResult.parserErrors).toHaveLength(0);
+      expect(doc.diagnostics ?? []).toHaveLength(0);
+    });
+
+    it("should reject multiple discriminants in when clauses", async () => {
+      const doc = await parseFile(
+        fixture("when-clauses-multiple-discriminants.urlspec"),
+      );
+
+      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.some((e) => e.message.includes("discriminant"))).toBe(true);
+    });
+
+    it("should reject duplicate when clause values", async () => {
+      const doc = await parseFile(
+        fixture("when-clauses-duplicate-value.urlspec"),
+      );
+
+      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.some((e) => e.message.includes("Duplicate"))).toBe(true);
+    });
+
+    it("should reject discriminant declared in parameter block", async () => {
+      const doc = await parseFile(
+        fixture("when-clauses-discriminant-in-params.urlspec"),
+      );
+
+      const errors = doc.diagnostics?.filter((d) => d.severity === 1) ?? [];
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.some((e) => e.message.includes("type"))).toBe(true);
+    });
+  });
+
   describe("Combined validation scenarios", () => {
     it("should validate path parameter declaration", async () => {
       const doc = await parseFile(

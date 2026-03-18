@@ -165,6 +165,55 @@ describe("URLSpec Resolver", () => {
     );
   });
 
+  it("should resolve when clauses as discriminated union", async () => {
+    const doc = await parseFile(fixture("when-clauses.urlspec"));
+    const spec = resolve(doc);
+
+    const page = spec.pages[0];
+    expect(page?.name).toBe("search");
+
+    // Common param + discriminant param
+    expect(page?.parameters.some((p) => p.name === "q")).toBe(true);
+    expect(page?.parameters.some((p) => p.name === "type")).toBe(true);
+
+    const typeParam = page?.parameters.find((p) => p.name === "type");
+    expect(typeParam?.type).toEqual({
+      kind: "union",
+      values: ["product", "user"],
+    });
+    expect(typeParam?.optional).toBe(false);
+
+    // Variants
+    expect(page?.variants).toBeDefined();
+    expect(page?.variants?.discriminant).toBe("type");
+    expect(page?.variants?.variants).toHaveLength(2);
+
+    const productVariant = page?.variants?.variants.find(
+      (v) => v.value === "product",
+    );
+    expect(productVariant?.parameters.some((p) => p.name === "category")).toBe(
+      true,
+    );
+    expect(productVariant?.parameters.some((p) => p.name === "price")).toBe(
+      true,
+    );
+
+    const userVariant = page?.variants?.variants.find(
+      (v) => v.value === "user",
+    );
+    expect(userVariant?.parameters.some((p) => p.name === "role")).toBe(true);
+    expect(userVariant?.parameters.some((p) => p.name === "company")).toBe(
+      true,
+    );
+  });
+
+  it("should leave variants undefined for pages without when clauses", async () => {
+    const doc = await parseFile(fixture("basic-page.urlspec"));
+    const spec = resolve(doc);
+
+    expect(spec.pages[0]?.variants).toBeUndefined();
+  });
+
   it("should not include section header comment separated by blank line", async () => {
     const doc = await parseFile(fixture("section-comment-separation.urlspec"));
     const spec = resolve(doc);
