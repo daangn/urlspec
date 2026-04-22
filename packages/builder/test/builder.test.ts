@@ -186,6 +186,39 @@ describe("URLSpec Builder", () => {
       const result = spec.toString();
       expect(result).toContain("// Job listing page\n// Displays all available jobs");
     });
+
+    it("should output when clause variant comments", () => {
+      const spec = new URLSpec();
+      spec.addPage({
+        name: "search",
+        path: "/search",
+        parameters: [{ name: "q", type: "string", optional: true }],
+        when: {
+          discriminant: "type",
+          variants: [
+            {
+              value: "product",
+              comment: "Product search variant",
+              parameters: [
+                { name: "category", type: "string", optional: true },
+              ],
+            },
+            {
+              value: "user",
+              comment: "User search variant\nLooks up members by role",
+              parameters: [{ name: "role", type: "string", optional: true }],
+            },
+          ],
+        },
+      });
+      const result = spec.toString();
+      expect(result).toContain("  // Product search variant");
+      expect(result).toContain('  when type = "product" {');
+      expect(result).toContain(
+        "  // User search variant\n  // Looks up members by role",
+      );
+      expect(result).toContain('  when type = "user" {');
+    });
   });
 
   describe("Security - Path Traversal Prevention", () => {

@@ -163,13 +163,18 @@ export function createWhenClause(
   discriminant: string,
   value: string,
   parameters: ParameterDeclaration[],
+  description?: string,
 ): WhenClause {
-  return {
+  const node = {
     $type: "WhenClause",
     discriminant,
     value: value.startsWith('"') ? value : `"${value}"`,
     parameters,
   } as WhenClause;
+  if (description) {
+    (node as any).$description = description;
+  }
+  return node;
 }
 
 /**
