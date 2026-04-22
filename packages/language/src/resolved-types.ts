@@ -32,6 +32,7 @@ export interface ResolvedVariantGroup {
 export interface ResolvedVariant {
   value: string;
   parameters: ResolvedParameter[];
+  description?: string;
 }
 
 export interface ResolvedPathSegment {

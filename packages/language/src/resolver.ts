@@ -151,6 +151,7 @@ function resolveVariants(
   const variants: ResolvedVariant[] = whenClauses.map((w) => ({
     value: w.value.replace(/^"|"$/g, ""),
     parameters: w.parameters.map((p) => resolveParameter(p, "page")),
+    description: extractDescription(w),
   }));
 
   return { discriminant, variants };

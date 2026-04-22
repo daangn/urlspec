@@ -78,6 +78,29 @@ describe("URLSpec Printer", () => {
     expect(printed).toContain("    role?: string;");
   });
 
+  it("should preserve when clause descriptions as comments", async () => {
+    const doc = await parseFile(fixture("when-clauses-descriptions.urlspec"));
+    const printed = print(doc);
+
+    expect(printed).toContain("  // Product search variant");
+    expect(printed).toContain(
+      "  // Used when looking up products by category or price",
+    );
+    expect(printed).toContain("  // User search variant");
+  });
+
+  it("should roundtrip when clause descriptions through print-parse-print", async () => {
+    const doc1 = await parseFile(fixture("when-clauses-descriptions.urlspec"));
+    const printed1 = print(doc1);
+
+    const doc2 = await parse(printed1);
+    expect(doc2.parseResult.lexerErrors).toHaveLength(0);
+    expect(doc2.parseResult.parserErrors).toHaveLength(0);
+
+    const printed2 = print(doc2);
+    expect(printed2).toBe(printed1);
+  });
+
   it("should roundtrip when clauses through print-parse-print", async () => {
     const doc1 = await parseFile(fixture("when-clauses.urlspec"));
     const printed1 = print(doc1);

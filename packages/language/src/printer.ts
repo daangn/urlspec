@@ -83,6 +83,7 @@ function printPage(page: PageDeclaration): string {
     const quotedValue = whenClause.value.startsWith('"')
       ? whenClause.value
       : `"${whenClause.value}"`;
+    lines.push(...descriptionLines(getDescription(whenClause), "  "));
     lines.push(`  when ${whenClause.discriminant} = ${quotedValue} {`);
     for (const param of whenClause.parameters) {
       lines.push(...descriptionLines(getDescription(param), "    "));

@@ -1,0 +1,17 @@
+// Search page with discriminated variants
+page search = /search {
+  q?: string;
+
+  // Product search variant
+  // Used when looking up products by category or price
+  when type = "product" {
+    category?: string;
+    price?: string;
+  }
+
+  // User search variant
+  when type = "user" {
+    role?: string;
+    company?: string;
+  }
+}

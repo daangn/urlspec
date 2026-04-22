@@ -207,6 +207,26 @@ describe("URLSpec Resolver", () => {
     );
   });
 
+  it("should extract descriptions from comments preceding when clauses", async () => {
+    const doc = await parseFile(fixture("when-clauses-descriptions.urlspec"));
+    const spec = resolve(doc);
+
+    const page = spec.pages[0];
+    expect(page?.variants).toBeDefined();
+
+    const productVariant = page?.variants?.variants.find(
+      (v) => v.value === "product",
+    );
+    expect(productVariant?.description).toBe(
+      "Product search variant\nUsed when looking up products by category or price",
+    );
+
+    const userVariant = page?.variants?.variants.find(
+      (v) => v.value === "user",
+    );
+    expect(userVariant?.description).toBe("User search variant");
+  });
+
   it("should leave variants undefined for pages without when clauses", async () => {
     const doc = await parseFile(fixture("basic-page.urlspec"));
     const spec = resolve(doc);
