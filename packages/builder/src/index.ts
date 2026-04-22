@@ -68,6 +68,7 @@ export interface ParameterDefinition {
 export interface VariantDefinition {
   value: string;
   parameters?: ParameterDefinition[];
+  comment?: string;
 }
 
 export interface DiscriminatedVariants {
@@ -142,6 +143,7 @@ export class URLSpec {
               page.when!.discriminant,
               v.value,
               v.parameters?.map((p) => this.buildParameter(p)) ?? [],
+              v.comment,
             ),
           )
         : [];
