@@ -3,6 +3,11 @@
  */
 
 import type {
+  Annotation,
+  AnnotationBoolean,
+  AnnotationList,
+  AnnotationString,
+  AnnotationValue,
   GlobalBlock,
   PageDeclaration,
   ParameterDeclaration,
@@ -178,6 +183,66 @@ export function createWhenClause(
 }
 
 /**
+ * Create an annotation string value
+ */
+export function createAnnotationString(value: string): AnnotationString {
+  return {
+    $type: "AnnotationString",
+    value,
+  } as AnnotationString;
+}
+
+/**
+ * Create an annotation boolean value
+ */
+export function createAnnotationBoolean(value: boolean): AnnotationBoolean {
+  return {
+    $type: "AnnotationBoolean",
+    value: value ? "true" : "false",
+  } as AnnotationBoolean;
+}
+
+/**
+ * Create an annotation list value
+ */
+export function createAnnotationList(values: string[]): AnnotationList {
+  return {
+    $type: "AnnotationList",
+    values,
+  } as AnnotationList;
+}
+
+/**
+ * Create an annotation. The leading `@` is added when missing.
+ */
+export function createAnnotation(
+  key: string,
+  value: AnnotationValue,
+): Annotation {
+  return {
+    $type: "Annotation",
+    key: key.startsWith("@") ? key : `@${key}`,
+    value,
+  } as Annotation;
+}
+
+/**
+ * Create an annotation from a plain JavaScript value
+ */
+export function createAnnotationFromValue(
+  key: string,
+  value: string | boolean | string[],
+): Annotation {
+  if (typeof value === "boolean") {
+    return createAnnotation(key, createAnnotationBoolean(value));
+  }
+  if (Array.isArray(value)) {
+    return createAnnotation(key, createAnnotationList(value));
+  }
+  return createAnnotation(key, createAnnotationString(value));
+}
+
+/**
  * Create a page declaration
  */
 export function createPageDeclaration(
@@ -186,6 +251,7 @@ export function createPageDeclaration(
   parameters?: ParameterDeclaration[],
   description?: string,
   whenClauses?: WhenClause[],
+  annotations?: Annotation[],
 ): PageDeclaration {
   const node = {
     $type: "PageDeclaration",
@@ -193,6 +259,7 @@ export function createPageDeclaration(
     path: parsePath(pathStr),
     parameters: parameters || [],
     whenClauses: whenClauses || [],
+    annotations: annotations || [],
   } as PageDeclaration;
   if (description) {
     (node as any).$description = description;

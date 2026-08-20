@@ -15,6 +15,7 @@
 - **Type-safe resolution**: Transform AST into developer-friendly resolved structures
 - **Validation**: Catch syntax and semantic errors
 - **Pretty printing**: Generate formatted `.urlspec` text from AST
+- **Annotations**: Read `@key = value;` metadata attached to pages
 - **Langium services**: Expose language services for IDE integration
 
 ## Installation
@@ -219,8 +220,43 @@ interface ResolvedPage {
   path: string;
   pathSegments: ResolvedPathSegment[];
   parameters: ResolvedParameter[];
+  variants?: ResolvedVariantGroup;
   description?: string;
+  annotations?: ResolvedAnnotations;
 }
+```
+
+### `ResolvedAnnotations`
+
+Annotations declared above a page (`@key = value;`), keyed without the leading
+`@`. The property is absent on pages that declare none.
+
+```typescript
+type ResolvedAnnotations = Record<string, ResolvedAnnotationValue>;
+
+type ResolvedAnnotationValue = string | boolean | string[];
+```
+
+URLSpec validates only the shape of an annotation — a camelCase key, no
+duplicate key on one page. Which keys are legal, and what their values mean, is
+decided by whatever consumes the spec.
+
+```urlspec
+@minAppVersion = "24.30.0";
+@deprecated = true;
+@owners = ["team-web", "team-search"];
+page detail = /items/:itemId {
+  itemId: string;
+}
+```
+
+```typescript
+spec.pages[0].annotations;
+// {
+//   minAppVersion: '24.30.0',
+//   deprecated: true,
+//   owners: ['team-web', 'team-search'],
+// }
 ```
 
 ### `ResolvedParameter`

@@ -1,0 +1,4 @@
+@min_app_version = "24.30.0";
+page detail = /items {
+  q?: string;
+}

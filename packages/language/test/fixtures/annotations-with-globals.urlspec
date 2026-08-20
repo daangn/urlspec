@@ -1,0 +1,10 @@
+param sortOrder = "recent" | "popular";
+
+global {
+  utm_source?: string;
+}
+
+@minAppVersion = "24.30.0";
+page list = /items {
+  sort?: sortOrder;
+}

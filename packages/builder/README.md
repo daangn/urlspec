@@ -15,6 +15,7 @@
 - **Type-Safe**: Full TypeScript support with type checking
 - **AST Generation**: Built on top of `@urlspec/language`
 - **File Output**: Write directly to `.urlspec` files
+- **Annotations**: Attach `@key = value;` metadata to generated pages
 - **Dynamic Generation**: Generate specifications programmatically (e.g., from loops, API schemas)
 
 ## Installation
@@ -162,8 +163,27 @@ spec.addPage({
     { name: 'user_id', type: 'string' },
     { name: 'tab', type: ['posts', 'likes', 'comments'], optional: true },
   ],
+  annotations: {
+    minAppVersion: '24.30.0',
+    owners: ['team-web'],
+  },
 });
 ```
+
+Produces:
+
+```urlspec
+@minAppVersion = "24.30.0";
+@owners = ["team-web"];
+page userProfile = /users/:user_id {
+  user_id: string;
+  tab?: "posts" | "likes" | "comments";
+}
+```
+
+Annotation keys are written in camelCase, without the leading `@`. The builder
+does not check which keys are legal — URLSpec deliberately does not know; that
+belongs to whatever consumes the spec.
 
 **`PageDefinition` Interface:**
 ```typescript
@@ -171,7 +191,9 @@ interface PageDefinition {
   name: string;
   path: string;
   parameters?: ParameterDefinition[];
-  comment?: string; // Not yet implemented
+  when?: DiscriminatedVariants;
+  comment?: string;
+  annotations?: AnnotationDefinitions;
 }
 ```
 
@@ -181,7 +203,13 @@ interface ParameterDefinition {
   name: string;
   type: ParamType;
   optional?: boolean;
+  comment?: string;
 }
+```
+
+**`AnnotationDefinitions` Interface:**
+```typescript
+type AnnotationDefinitions = Record<string, string | boolean | string[]>;
 ```
 
 ##### `toAST(): URLSpecDocument`

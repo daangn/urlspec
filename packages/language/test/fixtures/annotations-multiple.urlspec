@@ -1,0 +1,8 @@
+@minAppVersion = "24.30.0";
+@movedTo = "/v2/items";
+@experimental = true;
+@archived = false;
+@owners = ["team-web", "team-search"];
+page detail = /items/:itemId {
+  itemId: string;
+}

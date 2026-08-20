@@ -5,6 +5,8 @@
 import { writeFileSync } from "node:fs";
 import { normalize, resolve } from "node:path";
 import {
+  type Annotation,
+  createAnnotationFromValue,
   createGlobalBlock,
   createPageDeclaration,
   createParameterDeclaration,
@@ -27,6 +29,11 @@ import {
 
 // Re-export AST types
 export type {
+  Annotation,
+  AnnotationBoolean,
+  AnnotationList,
+  AnnotationString,
+  AnnotationValue,
   GlobalBlock,
   PageDeclaration,
   ParameterDeclaration,
@@ -43,6 +50,11 @@ export type {
 } from "@urlspec/language";
 // Re-export AST builder functions for convenience
 export {
+  createAnnotation,
+  createAnnotationBoolean,
+  createAnnotationFromValue,
+  createAnnotationList,
+  createAnnotationString,
   createGlobalBlock,
   createPageDeclaration,
   createParameterDeclaration,
@@ -76,12 +88,21 @@ export interface DiscriminatedVariants {
   variants: VariantDefinition[];
 }
 
+/**
+ * Annotation values attached to a page.
+ *
+ * The builder does not check which keys are legal — URLSpec deliberately does
+ * not know. Keys are written in camelCase, without the leading `@`.
+ */
+export type AnnotationDefinitions = Record<string, string | boolean | string[]>;
+
 export interface PageDefinition {
   name: string;
   path: string;
   parameters?: ParameterDefinition[];
   when?: DiscriminatedVariants;
   comment?: string;
+  annotations?: AnnotationDefinitions;
 }
 
 /**
@@ -140,19 +161,23 @@ export class URLSpec {
       const whenClauses: WhenClause[] = page.when
         ? page.when.variants.map((v) =>
             createWhenClause(
-              page.when!.discriminant,
+              page.when?.discriminant,
               v.value,
               v.parameters?.map((p) => this.buildParameter(p)) ?? [],
               v.comment,
             ),
           )
         : [];
+      const annotations: Annotation[] = Object.entries(
+        page.annotations ?? {},
+      ).map(([key, value]) => createAnnotationFromValue(key, value));
       return createPageDeclaration(
         page.name,
         page.path,
         page.parameters?.map((p) => this.buildParameter(p)),
         page.comment,
         whenClauses.length > 0 ? whenClauses : undefined,
+        annotations.length > 0 ? annotations : undefined,
       );
     });
 

@@ -11,6 +11,7 @@ export const URLSpecTerminals = {
     PATH_SEGMENT: /\/[a-zA-Z0-9_.\-]+/,
     PARAM_PREFIX: /\/:/,
     ROOT_PATH: /\//,
+    ANNOTATION_KEY: /@[a-zA-Z][a-zA-Z0-9_.]*/,
     IDENTIFIER: /[a-zA-Z][a-zA-Z0-9_.]*/,
     STRING: /"([^"\\]|\\.)*"/,
     WS: /\s+/,
@@ -19,20 +20,97 @@ export const URLSpecTerminals = {
 export type URLSpecTerminalNames = keyof typeof URLSpecTerminals;
 
 export type URLSpecKeywordNames =
+    | ","
     | ":"
     | ";"
     | "="
     | "?"
+    | "["
+    | "]"
+    | "false"
     | "global"
     | "page"
     | "param"
     | "string"
+    | "true"
     | "when"
     | "{"
     | "|"
     | "}";
 
 export type URLSpecTokenNames = URLSpecTerminalNames | URLSpecKeywordNames;
+
+export interface Annotation extends langium.AstNode {
+    readonly $container: PageDeclaration;
+    readonly $type: 'Annotation';
+    key: string;
+    value: AnnotationValue;
+}
+
+export const Annotation = {
+    $type: 'Annotation',
+    key: 'key',
+    value: 'value'
+} as const;
+
+export function isAnnotation(item: unknown): item is Annotation {
+    return reflection.isInstance(item, Annotation.$type);
+}
+
+export interface AnnotationBoolean extends langium.AstNode {
+    readonly $container: Annotation;
+    readonly $type: 'AnnotationBoolean';
+    value: 'false' | 'true';
+}
+
+export const AnnotationBoolean = {
+    $type: 'AnnotationBoolean',
+    value: 'value'
+} as const;
+
+export function isAnnotationBoolean(item: unknown): item is AnnotationBoolean {
+    return reflection.isInstance(item, AnnotationBoolean.$type);
+}
+
+export interface AnnotationList extends langium.AstNode {
+    readonly $container: Annotation;
+    readonly $type: 'AnnotationList';
+    values: Array<string>;
+}
+
+export const AnnotationList = {
+    $type: 'AnnotationList',
+    values: 'values'
+} as const;
+
+export function isAnnotationList(item: unknown): item is AnnotationList {
+    return reflection.isInstance(item, AnnotationList.$type);
+}
+
+export interface AnnotationString extends langium.AstNode {
+    readonly $container: Annotation;
+    readonly $type: 'AnnotationString';
+    value: string;
+}
+
+export const AnnotationString = {
+    $type: 'AnnotationString',
+    value: 'value'
+} as const;
+
+export function isAnnotationString(item: unknown): item is AnnotationString {
+    return reflection.isInstance(item, AnnotationString.$type);
+}
+
+export type AnnotationValue = AnnotationBoolean | AnnotationList | AnnotationString;
+
+export const AnnotationValue = {
+    $type: 'AnnotationValue'
+} as const;
+
+export function isAnnotationValue(item: unknown): item is AnnotationValue {
+    return reflection.isInstance(item, AnnotationValue.$type);
+}
 
 export interface GlobalBlock extends langium.AstNode {
     readonly $container: URLSpecDocument;
@@ -52,6 +130,7 @@ export function isGlobalBlock(item: unknown): item is GlobalBlock {
 export interface PageDeclaration extends langium.AstNode {
     readonly $container: URLSpecDocument;
     readonly $type: 'PageDeclaration';
+    annotations: Array<Annotation>;
     name: string;
     parameters: Array<ParameterDeclaration>;
     path: Path;
@@ -60,6 +139,7 @@ export interface PageDeclaration extends langium.AstNode {
 
 export const PageDeclaration = {
     $type: 'PageDeclaration',
+    annotations: 'annotations',
     name: 'name',
     parameters: 'parameters',
     path: 'path',
@@ -89,10 +169,10 @@ export function isParameterDeclaration(item: unknown): item is ParameterDeclarat
     return reflection.isInstance(item, ParameterDeclaration.$type);
 }
 
-export type ParameterName = 'global' | 'page' | 'param' | 'string' | 'when' | string;
+export type ParameterName = 'false' | 'global' | 'page' | 'param' | 'string' | 'true' | 'when' | string;
 
 export function isParameterName(item: unknown): item is ParameterName {
-    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || item === 'when' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_.]*/.test(item)));
+    return item === 'page' || item === 'param' || item === 'global' || item === 'string' || item === 'when' || item === 'true' || item === 'false' || (typeof item === 'string' && (/[a-zA-Z][a-zA-Z0-9_.]*/.test(item)));
 }
 
 export interface ParamTypeDeclaration extends langium.AstNode {
@@ -254,6 +334,11 @@ export function isWhenClause(item: unknown): item is WhenClause {
 }
 
 export type URLSpecAstType = {
+    Annotation: Annotation
+    AnnotationBoolean: AnnotationBoolean
+    AnnotationList: AnnotationList
+    AnnotationString: AnnotationString
+    AnnotationValue: AnnotationValue
     GlobalBlock: GlobalBlock
     PageDeclaration: PageDeclaration
     ParamTypeDeclaration: ParamTypeDeclaration
@@ -271,6 +356,52 @@ export type URLSpecAstType = {
 
 export class URLSpecAstReflection extends langium.AbstractAstReflection {
     override readonly types = {
+        Annotation: {
+            name: Annotation.$type,
+            properties: {
+                key: {
+                    name: Annotation.key
+                },
+                value: {
+                    name: Annotation.value
+                }
+            },
+            superTypes: []
+        },
+        AnnotationBoolean: {
+            name: AnnotationBoolean.$type,
+            properties: {
+                value: {
+                    name: AnnotationBoolean.value
+                }
+            },
+            superTypes: [AnnotationValue.$type]
+        },
+        AnnotationList: {
+            name: AnnotationList.$type,
+            properties: {
+                values: {
+                    name: AnnotationList.values,
+                    defaultValue: []
+                }
+            },
+            superTypes: [AnnotationValue.$type]
+        },
+        AnnotationString: {
+            name: AnnotationString.$type,
+            properties: {
+                value: {
+                    name: AnnotationString.value
+                }
+            },
+            superTypes: [AnnotationValue.$type]
+        },
+        AnnotationValue: {
+            name: AnnotationValue.$type,
+            properties: {
+            },
+            superTypes: []
+        },
         GlobalBlock: {
             name: GlobalBlock.$type,
             properties: {
@@ -284,6 +415,10 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
         PageDeclaration: {
             name: PageDeclaration.$type,
             properties: {
+                annotations: {
+                    name: PageDeclaration.annotations,
+                    defaultValue: []
+                },
                 name: {
                     name: PageDeclaration.name
                 },

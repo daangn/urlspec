@@ -152,6 +152,132 @@ global {
 }
 ```
 
+### Annotations
+
+Annotations record facts *about* a page, written above its declaration:
+
+```urlspec
+// Item detail page
+@minAppVersion = "24.30.0";
+@owners = ["team-web", "team-search"];
+page detail = /items/:itemId {
+  itemId: string;
+  status?: itemStatus;
+}
+```
+
+#### Why they exist
+
+A `.urlspec` file is the one place where a team already writes down every URL
+its service owns. That makes it the natural place to also write down what is
+true *of* those URLs — the minimum app version a scheme works from, the team on
+call for a page, where a retired page moved to.
+
+None of those facts are URL structure, and URLSpec has no opinion about them.
+Growing the core language a keyword at a time for each new fact would make
+URLSpec the union of every consumer's needs. Annotations are the alternative: a
+single, stable extension point. **URLSpec checks the shape of the line and
+nothing else.** Which keys are legal, and what their values mean, belongs to
+whatever reads the spec — a schema on your own server, a code generator, a
+linter.
+
+#### Where the boundary falls
+
+The `@` marks the point past which URLSpec stops knowing, so the two kinds of
+mistake fail in two visibly different places:
+
+```urlspec
+itemId: strng;                  // parse error — offline, immediately
+@minAppVerson = "24.30.0";      // parses fine; your consumer rejects the key
+```
+
+That split is the whole point. A misspelled type is the language's problem and
+is caught with no network and no configuration. A misspelled annotation key is
+your schema's problem, and only your schema can catch it — so URLSpec does not
+pretend to.
+
+#### Values
+
+A value is a string, a boolean, or a list of strings:
+
+```urlspec
+@minAppVersion = "24.30.0";
+@deprecated = true;
+@owners = ["team-web", "team-search"];
+```
+
+Lists may break across lines and may carry a trailing comma:
+
+```urlspec
+@owners = [
+  "team-web",
+  "team-search",
+];
+```
+
+Lists are bracketed rather than bare (`"a", "b"`) so that how many values an
+annotation holds is readable from the syntax alone. A parser must never need
+your schema in hand to know where a value ends.
+
+There is deliberately no syntax for multi-line strings. Long prose belongs to
+the system that displays it, not to a file that ships with your code; if the
+need turns out to be real, a triple-quoted form is free to add later — it is a
+parse error today, so no existing file can break.
+
+#### What URLSpec enforces
+
+Two rules, both decidable without knowing what a key means:
+
+- Keys are camelCase, so annotations read like the rest of the file.
+- A key may not appear twice on one page — the second would silently win, and
+  there is no sensible merge for a key the language cannot interpret.
+
+Everything else is your consumer's call.
+
+#### Why above the declaration, and why `@`
+
+Annotations sit outside the braces so that the parameter block keeps meaning
+exactly one thing: the query parameters this URL accepts. Mixed in, every future
+reader would have to sort two kinds of line apart by eye.
+
+`@` is the mark that decorators, `@media`, `@Override`, and JSDoc tags all
+already use for the same idea — metadata on a declaration, processed by
+something outside the language proper. It is also one of the few punctuation
+marks that carries no meaning inside a URL, which matters in a file full of
+them: `#` is a fragment (and a comment character in half the config languages in
+use), `%` is percent-encoding, `?` and `&` are the query string.
+
+#### Reading annotations
+
+`resolve()` returns them as a plain record, with the `@` dropped. Pages that
+declare none have no `annotations` property at all:
+
+```typescript
+import { parse, resolve } from '@urlspec/language';
+
+const spec = resolve(await parse(source));
+
+spec.pages[0].annotations;
+// { minAppVersion: '24.30.0', owners: ['team-web', 'team-search'] }
+```
+
+#### Writing annotations
+
+```typescript
+import { URLSpec } from '@urlspec/builder';
+
+const spec = new URLSpec();
+spec.addPage({
+  name: 'detail',
+  path: '/items/:itemId',
+  parameters: [{ name: 'itemId', type: 'string' }],
+  annotations: {
+    minAppVersion: '24.30.0',
+    owners: ['team-web', 'team-search'],
+  },
+});
+```
+
 ## Development
 
 ### Prerequisites

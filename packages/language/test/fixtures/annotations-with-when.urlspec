@@ -1,0 +1,11 @@
+@minAppVersion = "24.30.0";
+@owners = ["team-web"];
+page home = /home {
+  when pageType = "feed" {
+    feedId: string;
+  }
+
+  when pageType = "search" {
+    query: string;
+  }
+}

@@ -7,15 +7,16 @@ export * from "./__generated__/ast";
 
 // Export AST builder
 export * from "./ast-builder";
-
+// Export CST utilities
+export { extractDescription, extractLeadingDescription } from "./cst-utils";
 // Export parser
 export { parse, parseFile } from "./parser";
-
 // Export printer
 export { print } from "./printer";
-
 // Export resolved types
 export type {
+  ResolvedAnnotations,
+  ResolvedAnnotationValue,
   ResolvedPage,
   ResolvedParameter,
   ResolvedParamType,
@@ -23,9 +24,6 @@ export type {
   ResolvedType,
   ResolvedURLSpec,
 } from "./resolved-types";
-
-// Export CST utilities
-export { extractDescription } from "./cst-utils";
 
 // Export resolver
 export { resolve } from "./resolver";
