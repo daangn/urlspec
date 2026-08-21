@@ -1,0 +1,6 @@
+@somethingUrlspecHasNeverHeardOf = "whatever";
+@nonsense = ["a", "b"];
+@x = true;
+page detail = /items/:itemId {
+  itemId: string;
+}

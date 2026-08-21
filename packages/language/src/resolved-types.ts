@@ -22,7 +22,20 @@ export interface ResolvedPage {
   parameters: ResolvedParameter[];
   variants?: ResolvedVariantGroup;
   description?: string;
+  /**
+   * Annotations declared above the page (`@key = value;`).
+   *
+   * URLSpec validates only the shape of these entries. Which keys are legal,
+   * and what their values mean, is decided by whatever consumes the spec.
+   * Absent when the page declares no annotations.
+   */
+  annotations?: ResolvedAnnotations;
 }
+
+/** Annotation keys mapped to their values, without the leading `@`. */
+export type ResolvedAnnotations = Record<string, ResolvedAnnotationValue>;
+
+export type ResolvedAnnotationValue = string | boolean | string[];
 
 export interface ResolvedVariantGroup {
   discriminant: string;

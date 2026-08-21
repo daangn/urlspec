@@ -1,0 +1,4 @@
+@MinAppVersion = "24.30.0";
+page detail = /items {
+  q?: string;
+}

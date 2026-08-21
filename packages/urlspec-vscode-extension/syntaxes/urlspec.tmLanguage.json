@@ -7,8 +7,15 @@
       "include": "#comments"
     },
     {
+      "include": "#annotation"
+    },
+    {
       "name": "keyword.control.urlspec",
-      "match": "\\b(global|page|param|string)\\b"
+      "match": "\\b(global|page|param|string|when)\\b"
+    },
+    {
+      "name": "constant.language.boolean.urlspec",
+      "match": "\\b(true|false)\\b"
     },
     {
       "name": "string.quoted.double.urlspec",
@@ -22,6 +29,11 @@
     }
   ],
   "repository": {
+    "annotation": {
+      "comment": "Page annotation key, e.g. @minAppVersion. Validated by an external schema, not by URLSpec.",
+      "name": "entity.other.attribute-name.urlspec",
+      "match": "@[a-zA-Z][a-zA-Z0-9_.]*"
+    },
     "comments": {
       "patterns": [
         {

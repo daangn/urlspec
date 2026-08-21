@@ -80,7 +80,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@18"
+                "$ref": "#/rules@24"
               },
               "arguments": []
             }
@@ -96,7 +96,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@9"
+                "$ref": "#/rules@14"
               },
               "arguments": []
             }
@@ -132,7 +132,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@7"
+                "$ref": "#/rules@12"
               },
               "arguments": []
             },
@@ -155,6 +155,19 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
         "$type": "Group",
         "elements": [
           {
+            "$type": "Assignment",
+            "feature": "annotations",
+            "operator": "+=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@4"
+              },
+              "arguments": []
+            },
+            "cardinality": "*"
+          },
+          {
             "$type": "Keyword",
             "value": "page"
           },
@@ -165,7 +178,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@18"
+                "$ref": "#/rules@24"
               },
               "arguments": []
             }
@@ -181,7 +194,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@5"
+                "$ref": "#/rules@10"
               },
               "arguments": []
             }
@@ -197,7 +210,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@7"
+                "$ref": "#/rules@12"
               },
               "arguments": []
             },
@@ -210,7 +223,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@4"
+                "$ref": "#/rules@9"
               },
               "arguments": []
             },
@@ -219,6 +232,192 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           {
             "$type": "Keyword",
             "value": "}"
+          }
+        ]
+      },
+      "entry": false,
+      "fragment": false,
+      "parameters": []
+    },
+    {
+      "$type": "ParserRule",
+      "name": "Annotation",
+      "definition": {
+        "$type": "Group",
+        "elements": [
+          {
+            "$type": "Assignment",
+            "feature": "key",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@23"
+              },
+              "arguments": []
+            }
+          },
+          {
+            "$type": "Keyword",
+            "value": "="
+          },
+          {
+            "$type": "Assignment",
+            "feature": "value",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@5"
+              },
+              "arguments": []
+            }
+          },
+          {
+            "$type": "Keyword",
+            "value": ";"
+          }
+        ]
+      },
+      "entry": false,
+      "fragment": false,
+      "parameters": []
+    },
+    {
+      "$type": "ParserRule",
+      "name": "AnnotationValue",
+      "definition": {
+        "$type": "Alternatives",
+        "elements": [
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@6"
+            },
+            "arguments": []
+          },
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@7"
+            },
+            "arguments": []
+          },
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@8"
+            },
+            "arguments": []
+          }
+        ]
+      },
+      "entry": false,
+      "fragment": false,
+      "parameters": []
+    },
+    {
+      "$type": "ParserRule",
+      "name": "AnnotationString",
+      "definition": {
+        "$type": "Assignment",
+        "feature": "value",
+        "operator": "=",
+        "terminal": {
+          "$type": "RuleCall",
+          "rule": {
+            "$ref": "#/rules@25"
+          },
+          "arguments": []
+        }
+      },
+      "entry": false,
+      "fragment": false,
+      "parameters": []
+    },
+    {
+      "$type": "ParserRule",
+      "name": "AnnotationBoolean",
+      "definition": {
+        "$type": "Assignment",
+        "feature": "value",
+        "operator": "=",
+        "terminal": {
+          "$type": "Alternatives",
+          "elements": [
+            {
+              "$type": "Keyword",
+              "value": "true"
+            },
+            {
+              "$type": "Keyword",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "entry": false,
+      "fragment": false,
+      "parameters": []
+    },
+    {
+      "$type": "ParserRule",
+      "name": "AnnotationList",
+      "definition": {
+        "$type": "Group",
+        "elements": [
+          {
+            "$type": "Keyword",
+            "value": "["
+          },
+          {
+            "$type": "Group",
+            "elements": [
+              {
+                "$type": "Assignment",
+                "feature": "values",
+                "operator": "+=",
+                "terminal": {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@25"
+                  },
+                  "arguments": []
+                }
+              },
+              {
+                "$type": "Group",
+                "elements": [
+                  {
+                    "$type": "Keyword",
+                    "value": ","
+                  },
+                  {
+                    "$type": "Assignment",
+                    "feature": "values",
+                    "operator": "+=",
+                    "terminal": {
+                      "$type": "RuleCall",
+                      "rule": {
+                        "$ref": "#/rules@25"
+                      },
+                      "arguments": []
+                    }
+                  }
+                ],
+                "cardinality": "*"
+              },
+              {
+                "$type": "Keyword",
+                "value": ",",
+                "cardinality": "?"
+              }
+            ],
+            "cardinality": "?"
+          },
+          {
+            "$type": "Keyword",
+            "value": "]"
           }
         ]
       },
@@ -243,7 +442,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@8"
+                "$ref": "#/rules@13"
               },
               "arguments": []
             }
@@ -259,7 +458,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@19"
+                "$ref": "#/rules@25"
               },
               "arguments": []
             }
@@ -275,7 +474,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@7"
+                "$ref": "#/rules@12"
               },
               "arguments": []
             },
@@ -304,7 +503,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@17"
+                "$ref": "#/rules@22"
               },
               "arguments": []
             }
@@ -316,7 +515,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@6"
+                "$ref": "#/rules@11"
               },
               "arguments": []
             },
@@ -341,7 +540,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@15"
+                "$ref": "#/rules@20"
               },
               "arguments": []
             }
@@ -352,7 +551,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
               {
                 "$type": "RuleCall",
                 "rule": {
-                  "$ref": "#/rules@16"
+                  "$ref": "#/rules@21"
                 },
                 "arguments": []
               },
@@ -363,7 +562,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@8"
+                    "$ref": "#/rules@13"
                   },
                   "arguments": []
                 }
@@ -389,7 +588,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@8"
+                "$ref": "#/rules@13"
               },
               "arguments": []
             }
@@ -415,7 +614,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@9"
+                "$ref": "#/rules@14"
               },
               "arguments": []
             }
@@ -440,7 +639,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@18"
+              "$ref": "#/rules@24"
             },
             "arguments": []
           },
@@ -463,6 +662,14 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           {
             "$type": "Keyword",
             "value": "when"
+          },
+          {
+            "$type": "Keyword",
+            "value": "true"
+          },
+          {
+            "$type": "Keyword",
+            "value": "false"
           }
         ]
       },
@@ -479,28 +686,28 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@12"
+              "$ref": "#/rules@17"
             },
             "arguments": []
           },
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@10"
+              "$ref": "#/rules@15"
             },
             "arguments": []
           },
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@13"
+              "$ref": "#/rules@18"
             },
             "arguments": []
           },
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@11"
+              "$ref": "#/rules@16"
             },
             "arguments": []
           }
@@ -520,7 +727,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
         "terminal": {
           "$type": "RuleCall",
           "rule": {
-            "$ref": "#/rules@19"
+            "$ref": "#/rules@25"
           },
           "arguments": []
         }
@@ -558,7 +765,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@10"
+                "$ref": "#/rules@15"
               },
               "arguments": []
             }
@@ -577,7 +784,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@10"
+                    "$ref": "#/rules@15"
                   },
                   "arguments": []
                 }
@@ -606,7 +813,7 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           "terminal": {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@18"
+              "$ref": "#/rules@24"
             },
             "arguments": []
           },
@@ -663,6 +870,17 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
           "$type": "Keyword",
           "value": "/"
         },
+        "parenthesized": false
+      },
+      "fragment": false,
+      "hidden": false
+    },
+    {
+      "$type": "TerminalRule",
+      "name": "ANNOTATION_KEY",
+      "definition": {
+        "$type": "RegexToken",
+        "regex": "/@[a-zA-Z][a-zA-Z0-9_.]*/",
         "parenthesized": false
       },
       "fragment": false,

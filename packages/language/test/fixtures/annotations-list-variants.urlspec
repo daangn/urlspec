@@ -1,0 +1,14 @@
+@empty = [];
+@single = ["only"];
+@trailingComma = [
+  "first",
+  "second",
+];
+@multiline = [
+  "alpha",
+  "beta",
+  "gamma"
+];
+page list = /items {
+  q?: string;
+}

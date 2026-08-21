@@ -1,0 +1,4 @@
+@owners = ["team-web", "team-search", "team-growth", "team-mobile", "team-infra"];
+page list = /items {
+  q?: string;
+}

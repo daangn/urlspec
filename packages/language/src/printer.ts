@@ -1,5 +1,10 @@
 import type { AstNode, LangiumDocument } from "langium";
 import type {
+  Annotation,
+  AnnotationBoolean,
+  AnnotationList,
+  AnnotationString,
+  AnnotationValue,
   PageDeclaration,
   ParameterDeclaration,
   PathSegment,
@@ -10,7 +15,10 @@ import type {
   UnionType,
   URLSpecDocument,
 } from "./__generated__/ast";
-import { extractDescription } from "./cst-utils";
+import { extractLeadingDescription } from "./cst-utils";
+
+/** Column past which an annotation list is broken onto multiple lines. */
+const MAX_LINE_WIDTH = 80;
 
 /**
  * Get description from a node: check $description (builder) or CST (parsed)
@@ -18,7 +26,7 @@ import { extractDescription } from "./cst-utils";
 function getDescription(node: AstNode): string | undefined {
   const builderDesc = (node as any).$description;
   if (builderDesc) return builderDesc;
-  return extractDescription(node);
+  return extractLeadingDescription(node);
 }
 
 /**
@@ -59,6 +67,9 @@ export function print(doc: LangiumDocument<URLSpecDocument>): string {
   // Pages
   for (const page of model.pages) {
     lines.push(...descriptionLines(getDescription(page), ""));
+    for (const annotation of page.annotations ?? []) {
+      lines.push(...printAnnotation(annotation));
+    }
     lines.push(printPage(page));
     lines.push("");
   }
@@ -95,6 +106,51 @@ function printPage(page: PageDeclaration): string {
   lines.push("}");
 
   return lines.join("\n");
+}
+
+/**
+ * Print an annotation as one or more lines. Lists are broken across lines when
+ * the single-line form would run past MAX_LINE_WIDTH.
+ */
+function printAnnotation(annotation: Annotation): string[] {
+  const key = annotation.key.startsWith("@")
+    ? annotation.key
+    : `@${annotation.key}`;
+  const singleLine = `${key} = ${printAnnotationValue(annotation.value)};`;
+
+  if (
+    singleLine.length <= MAX_LINE_WIDTH ||
+    !isAnnotationList(annotation.value)
+  ) {
+    return [singleLine];
+  }
+
+  return [
+    `${key} = [`,
+    ...annotation.value.values.map((v) => `  ${quote(v)},`),
+    "];",
+  ];
+}
+
+function printAnnotationValue(value: AnnotationValue): string {
+  if (isAnnotationString(value)) {
+    return quote(value.value);
+  }
+
+  if (isAnnotationBoolean(value)) {
+    return value.value;
+  }
+
+  if (isAnnotationList(value)) {
+    return `[${value.values.map(quote).join(", ")}]`;
+  }
+
+  return "unknown";
+}
+
+/** Values arrive unquoted from the parser but quoted from the AST builder. */
+function quote(value: string): string {
+  return value.startsWith('"') ? value : `"${value}"`;
 }
 
 function printPathSegment(segment: PathSegment): string {
@@ -137,6 +193,20 @@ function printType(type: Type): string {
 }
 
 // Type guards
+function isAnnotationString(value: AnnotationValue): value is AnnotationString {
+  return "$type" in value && value.$type === "AnnotationString";
+}
+
+function isAnnotationBoolean(
+  value: AnnotationValue,
+): value is AnnotationBoolean {
+  return "$type" in value && value.$type === "AnnotationBoolean";
+}
+
+function isAnnotationList(value: AnnotationValue): value is AnnotationList {
+  return "$type" in value && value.$type === "AnnotationList";
+}
+
 function isStringKeyword(type: Type): type is StringKeyword {
   return "$type" in type && type.$type === "StringKeyword";
 }

@@ -6,7 +6,7 @@
 
 ## Features
 
-- **Syntax Highlighting**: Full TextMate grammar support for URLSpec syntax
+- **Syntax Highlighting**: Full TextMate grammar support for URLSpec syntax, including `@annotation` keys
 - **Real-time Validation**: Instant error detection and diagnostics
 - **Document Outline**: Navigate your URLSpec structure with the outline view
 - **Bracket Matching & Auto-closing**: Auto-closing pairs for brackets and quotes

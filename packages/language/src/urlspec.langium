@@ -12,7 +12,23 @@ GlobalBlock:
     'global' '{' (parameters+=ParameterDeclaration)* '}';
 
 PageDeclaration:
+    (annotations+=Annotation)*
     'page' name=IDENTIFIER '=' path=Path '{' (parameters+=ParameterDeclaration)* (whenClauses+=WhenClause)* '}';
+
+Annotation:
+    key=ANNOTATION_KEY '=' value=AnnotationValue ';';
+
+AnnotationValue:
+    AnnotationString | AnnotationBoolean | AnnotationList;
+
+AnnotationString:
+    value=STRING;
+
+AnnotationBoolean:
+    value=('true' | 'false');
+
+AnnotationList:
+    '[' (values+=STRING (',' values+=STRING)* ','?)? ']';
 
 WhenClause:
     'when' discriminant=ParameterName '=' value=STRING '{' (parameters+=ParameterDeclaration)* '}';
@@ -27,7 +43,7 @@ ParameterDeclaration:
     name=ParameterName optional='?'? ':' type=Type ';';
 
 ParameterName returns string:
-    IDENTIFIER | 'page' | 'param' | 'global' | 'string' | 'when';
+    IDENTIFIER | 'page' | 'param' | 'global' | 'string' | 'when' | 'true' | 'false';
 
 Type:
     UnionType | StringLiteralType | TypeReference | StringKeyword;
@@ -55,6 +71,9 @@ terminal PARAM_PREFIX:
 
 terminal ROOT_PATH:
     '/';
+
+terminal ANNOTATION_KEY:
+    /@[a-zA-Z][a-zA-Z0-9_.]*/;
 
 terminal IDENTIFIER:
     /[a-zA-Z][a-zA-Z0-9_.]*/;

@@ -1,0 +1,42 @@
+// URLSpec Annotations Demo
+//
+// Annotations record facts *about* a page that URLSpec itself does not
+// understand. The language checks the shape of each line; whichever tool
+// consumes the spec decides which keys are legal and what they mean.
+
+param sortOrder = "recent" | "popular";
+
+global {
+  utm_source?: string;
+}
+
+// The minimum app version an app scheme on this page works from.
+@minAppVersion = "24.30.0";
+@owners = ["team-web", "team-search"];
+page list = /items {
+  sort?: sortOrder;
+  category?: string;
+}
+
+// A page that has moved. The old path stays declared so links keep resolving.
+@movedTo = "/v2/items/:itemId";
+@deprecated = true;
+page detail = /items/:itemId {
+  itemId: string;
+}
+
+// Annotations sit outside the braces, so the parameter block keeps meaning
+// exactly one thing: the query parameters this URL accepts.
+@minAppVersion = "25.02.0";
+page home = /home {
+  when pageType = "feed" {
+    feedId: string;
+  }
+
+  when pageType = "search" {
+    query: string;
+  }
+}
+
+// Pages need no annotations at all.
+page about = /about {}

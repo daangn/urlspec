@@ -1,5 +1,10 @@
 import type { LangiumDocument } from "langium";
 import type {
+  Annotation,
+  AnnotationBoolean,
+  AnnotationList,
+  AnnotationString,
+  AnnotationValue,
   PageDeclaration,
   ParameterDeclaration,
   StringKeyword,
@@ -10,8 +15,10 @@ import type {
   URLSpecDocument,
   WhenClause,
 } from "./__generated__/ast";
-import { extractDescription } from "./cst-utils";
+import { extractDescription, extractLeadingDescription } from "./cst-utils";
 import type {
+  ResolvedAnnotations,
+  ResolvedAnnotationValue,
   ResolvedPage,
   ResolvedParameter,
   ResolvedParamType,
@@ -75,7 +82,8 @@ function resolvePage(
       pathSegments: [],
       parameters: rootParameters,
       variants: rootVariants,
-      description: extractDescription(page),
+      description: extractLeadingDescription(page),
+      annotations: resolveAnnotations(page.annotations),
     };
   }
 
@@ -116,8 +124,49 @@ function resolvePage(
     pathSegments,
     parameters,
     variants,
-    description: extractDescription(page),
+    description: extractLeadingDescription(page),
+    annotations: resolveAnnotations(page.annotations),
   };
+}
+
+/**
+ * Resolve annotations into a plain key/value record.
+ *
+ * The leading `@` is dropped from keys, and values are converted to their
+ * JavaScript equivalents. Nothing here checks whether a key is *meaningful* —
+ * URLSpec deliberately does not know. Returns undefined when there are none,
+ * so `annotations` stays absent on pages that declare none.
+ */
+function resolveAnnotations(
+  annotations: Annotation[] | undefined,
+): ResolvedAnnotations | undefined {
+  if (!annotations || annotations.length === 0) return undefined;
+
+  const resolved: ResolvedAnnotations = {};
+  for (const annotation of annotations) {
+    resolved[annotation.key.replace(/^@/, "")] = resolveAnnotationValue(
+      annotation.value,
+    );
+  }
+  return resolved;
+}
+
+function resolveAnnotationValue(
+  value: AnnotationValue,
+): ResolvedAnnotationValue {
+  if (isAnnotationString(value)) {
+    return value.value.replace(/^"|"$/g, "");
+  }
+
+  if (isAnnotationBoolean(value)) {
+    return value.value === "true";
+  }
+
+  if (isAnnotationList(value)) {
+    return value.values.map((v) => v.replace(/^"|"$/g, ""));
+  }
+
+  throw new Error(`Unknown annotation value: ${JSON.stringify(value)}`);
 }
 
 /**
@@ -203,6 +252,20 @@ function resolveType(type: Type): ResolvedType {
 }
 
 // Type guards
+function isAnnotationString(value: AnnotationValue): value is AnnotationString {
+  return "$type" in value && value.$type === "AnnotationString";
+}
+
+function isAnnotationBoolean(
+  value: AnnotationValue,
+): value is AnnotationBoolean {
+  return "$type" in value && value.$type === "AnnotationBoolean";
+}
+
+function isAnnotationList(value: AnnotationValue): value is AnnotationList {
+  return "$type" in value && value.$type === "AnnotationList";
+}
+
 function isStringKeyword(type: Type): type is StringKeyword {
   return "$type" in type && type.$type === "StringKeyword";
 }

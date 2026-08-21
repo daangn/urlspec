@@ -2,19 +2,17 @@
  * CST utilities for extracting metadata from Concrete Syntax Tree nodes
  */
 
-import type { AstNode, LeafCstNode } from "langium";
+import type { AstNode, CstNode, LeafCstNode } from "langium";
 
 /**
- * Extract description from comments preceding an AST node.
- * Stops at a blank line between comment blocks.
+ * Walk backwards from `fromIndex` collecting `//` comments.
+ * Stops at the first non-comment node, and at a blank line between
+ * two comment groups.
  */
-export function extractDescription(node: AstNode): string | undefined {
-  const cstNode = node.$cstNode;
-  if (!cstNode?.container) return undefined;
-
-  const container = cstNode.container;
-  const children = container.content;
-  const currentIndex = children.indexOf(cstNode);
+function collectCommentsBackward(
+  children: readonly CstNode[],
+  fromIndex: number,
+): string[] {
   const comments: string[] = [];
 
   // nextCommentLine tracks the start line of the most recently collected
@@ -23,10 +21,10 @@ export function extractDescription(node: AstNode): string | undefined {
   // more than 1 line, there is a blank line between them and we stop.
   let nextCommentLine: number | undefined;
 
-  for (let i = currentIndex - 1; i >= 0; i--) {
+  for (let i = fromIndex - 1; i >= 0; i--) {
     const sibling = children[i] as LeafCstNode | { tokenType: undefined };
     if (!("tokenType" in sibling) || sibling.tokenType === undefined) {
-      // Composite node (another declaration) — stop
+      // Composite node (another declaration, or an annotation) — stop
       break;
     }
     if (sibling.tokenType.name === "SL_COMMENT") {
@@ -48,5 +46,52 @@ export function extractDescription(node: AstNode): string | undefined {
     // WS tokens are not present in container.content, so no else branch needed
   }
 
+  return comments;
+}
+
+/**
+ * Extract description from comments preceding an AST node.
+ * Stops at a blank line between comment blocks.
+ */
+export function extractDescription(node: AstNode): string | undefined {
+  const cstNode = node.$cstNode;
+  if (!cstNode?.container) return undefined;
+
+  const children = cstNode.container.content;
+  const comments = collectCommentsBackward(children, children.indexOf(cstNode));
+
   return comments.length > 0 ? comments.join("\n") : undefined;
+}
+
+/**
+ * Extract the description of a declaration that may carry annotations.
+ *
+ * Comments written *between* the annotations and the declaration keyword sit
+ * inside the declaration's own CST rather than beside it, so
+ * `extractDescription` cannot see them. Look inside first, then fall back to
+ * the preceding siblings.
+ */
+export function extractLeadingDescription(node: AstNode): string | undefined {
+  const cstNode = node.$cstNode;
+  if (!cstNode) return undefined;
+
+  const own = cstNode.content;
+  if (own && own.length > 0) {
+    // The first non-comment leaf is the declaration keyword; anything before
+    // it is either an annotation (composite, stops the walk) or a comment.
+    const keywordIndex = own.findIndex((child) => {
+      const leaf = child as LeafCstNode | { tokenType: undefined };
+      return (
+        "tokenType" in leaf &&
+        leaf.tokenType !== undefined &&
+        leaf.tokenType.name !== "SL_COMMENT"
+      );
+    });
+    if (keywordIndex > 0) {
+      const inner = collectCommentsBackward(own, keywordIndex);
+      if (inner.length > 0) return inner.join("\n");
+    }
+  }
+
+  return extractDescription(node);
 }

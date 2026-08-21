@@ -1,0 +1,6 @@
+@experimental = true;
+page search = /search {
+  true?: string;
+  false?: string;
+  when?: string;
+}

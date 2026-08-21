@@ -1,0 +1,8 @@
+@minAppVersion = "24.30.0";
+page annotated = /items {
+  q?: string;
+}
+
+page plain = /about {
+  ref?: string;
+}
