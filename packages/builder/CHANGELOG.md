@@ -1,5 +1,34 @@
 # @urlspec/builder
 
+## 0.7.0
+
+### Minor Changes
+
+- b53daea: Add page annotations (`@key = value;`)
+
+  Annotations attach facts to a page that URLSpec itself does not interpret:
+
+  ```urlspec
+  @minAppVersion = "24.30.0";
+  @owners = ["team-web", "team-search"];
+  page detail = /items/:itemId {
+    itemId: string;
+  }
+  ```
+
+  Values may be a string, `true`/`false`, or a list of strings. URLSpec validates
+  the shape — camelCase keys, no duplicate key on one page — and leaves the
+  meaning of each key to whatever consumes the spec.
+
+  `ResolvedPage` gains an `annotations` record (absent when a page declares none),
+  the printer emits annotations above the declaration, and `URLSpec.addPage()`
+  accepts an `annotations` option.
+
+### Patch Changes
+
+- Updated dependencies [b53daea]
+  - @urlspec/language@0.9.0
+
 ## 0.6.0
 
 ### Minor Changes
