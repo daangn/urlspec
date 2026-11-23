@@ -20,6 +20,7 @@ export const URLSpecTerminals = {
 export type URLSpecTerminalNames = keyof typeof URLSpecTerminals;
 
 export type URLSpecKeywordNames =
+    | "+"
     | ","
     | ":"
     | ";"
@@ -212,12 +213,14 @@ export function isPath(item: unknown): item is Path {
 export interface PathSegment extends langium.AstNode {
     readonly $container: Path;
     readonly $type: 'PathSegment';
+    modifier?: '+';
     parameter?: ParameterName;
     static?: string;
 }
 
 export const PathSegment = {
     $type: 'PathSegment',
+    modifier: 'modifier',
     parameter: 'parameter',
     static: 'static'
 } as const;
@@ -479,6 +482,9 @@ export class URLSpecAstReflection extends langium.AbstractAstReflection {
         PathSegment: {
             name: PathSegment.$type,
             properties: {
+                modifier: {
+                    name: PathSegment.modifier
+                },
                 parameter: {
                     name: PathSegment.parameter
                 },

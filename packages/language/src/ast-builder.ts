@@ -111,11 +111,13 @@ export function createParameterDeclaration(
 export function createPathSegment(
   value: string,
   isParameter: boolean,
+  modifier?: "+",
 ): PathSegment {
   return {
     $type: "PathSegment",
     static: isParameter ? undefined : value,
     parameter: isParameter ? value : undefined,
+    ...(isParameter && modifier && { modifier }),
   } as PathSegment;
 }
 
@@ -137,6 +139,9 @@ export function parsePath(pathStr: string): Path {
   const parts = pathStr.split("/").filter((p) => p.length > 0);
   const segments: PathSegment[] = parts.map((part) => {
     if (part.startsWith(":")) {
+      if (part.endsWith("+")) {
+        return createPathSegment(part.slice(1, -1), true, "+");
+      }
       return createPathSegment(part.slice(1), true);
     }
     // Static segments now include the leading slash

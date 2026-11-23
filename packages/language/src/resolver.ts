@@ -94,14 +94,22 @@ function resolvePage(
       return { type: "static" as const, value: seg.static.substring(1) };
     }
     if (seg.parameter) {
-      return { type: "parameter" as const, value: seg.parameter };
+      return {
+        type: "parameter" as const,
+        value: seg.parameter,
+        ...(seg.modifier && { modifier: seg.modifier }),
+      };
     }
     throw new Error("Invalid path segment");
   });
 
   // Build full path string
   const path = pathSegments
-    .map((seg) => (seg.type === "static" ? `/${seg.value}` : `/:${seg.value}`))
+    .map((seg) =>
+      seg.type === "static"
+        ? `/${seg.value}`
+        : `/:${seg.value}${seg.modifier ?? ""}`,
+    )
     .join("");
 
   // Resolve page-specific parameters

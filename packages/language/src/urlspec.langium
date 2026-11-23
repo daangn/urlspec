@@ -37,7 +37,7 @@ Path:
     root=ROOT_PATH | segments+=PathSegment+;
 
 PathSegment:
-    static=PATH_SEGMENT | PARAM_PREFIX parameter=ParameterName;
+    static=PATH_SEGMENT | PARAM_PREFIX parameter=ParameterName (modifier='+')?;
 
 ParameterDeclaration:
     name=ParameterName optional='?'? ':' type=Type ';';
