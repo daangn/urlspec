@@ -566,6 +566,16 @@ export const URLSpecGrammar = (): Grammar => loadedURLSpecGrammar ?? (loadedURLS
                   },
                   "arguments": []
                 }
+              },
+              {
+                "$type": "Assignment",
+                "feature": "modifier",
+                "operator": "=",
+                "terminal": {
+                  "$type": "Keyword",
+                  "value": "+"
+                },
+                "cardinality": "?"
               }
             ]
           }

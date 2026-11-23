@@ -159,7 +159,7 @@ function printPathSegment(segment: PathSegment): string {
     return segment.static;
   }
   if (segment.parameter) {
-    return `/:${segment.parameter}`;
+    return `/:${segment.parameter}${segment.modifier ?? ""}`;
   }
   return "";
 }

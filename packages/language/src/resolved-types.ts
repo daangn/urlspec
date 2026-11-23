@@ -50,6 +50,8 @@ export interface ResolvedVariant {
 
 export interface ResolvedPathSegment {
   type: "static" | "parameter";
+  /** One or more path segments captured by a named parameter. */
+  modifier?: "+";
   value: string;
 }
 

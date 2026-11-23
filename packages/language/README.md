@@ -288,9 +288,17 @@ type ResolvedType =
 
 Represents a segment of a URL path.
 
+A named path parameter can use the `+` modifier to describe one or more
+slash-separated segments. For example, `/users/:something+` describes
+`/users/foo/posts/bar` with `something` equal to `foo/posts/bar`. The
+resolver preserves the pattern and emits
+`{ type: "parameter", value: "something", modifier: "+" }`.
+Consumers implement matching and URL generation using this metadata.
+
 ```typescript
 interface ResolvedPathSegment {
   type: "static" | "parameter";
+  modifier?: "+";
   value: string;
 }
 ```

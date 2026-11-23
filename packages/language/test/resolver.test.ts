@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { parseFile, resolve } from "../src/index.js";
+import { parse, parseFile, parsePath, print, resolve } from "../src/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -67,6 +67,22 @@ describe("URLSpec Resolver", () => {
       { type: "static", value: "comments" },
       { type: "parameter", value: "comment_id" },
     ]);
+  });
+
+  it("preserves a one-or-more path parameter across parsing, building and printing", async () => {
+    const path = "/users/:something+";
+    const doc = await parse(`page users = ${path} { something: string; }`);
+    const page = resolve(doc).pages[0];
+    expect(page?.path).toBe(path);
+    expect(page?.pathSegments).toEqual([
+      { type: "static", value: "users" },
+      { type: "parameter", value: "something", modifier: "+" },
+    ]);
+    expect(parsePath(path).segments[1]).toMatchObject({
+      parameter: "something",
+      modifier: "+",
+    });
+    expect(resolve(await parse(print(doc))).pages[0]).toEqual(page);
   });
 
   it("should resolve all types correctly", async () => {
