@@ -1,5 +1,17 @@
 # urlspec-vscode-extension
 
+## 0.7.0
+
+### Minor Changes
+
+- 1180d11: Support one-or-more path parameters such as `/users/:something+`.
+  The resolver exposes the parameter name and its `+` modifier separately.
+
+### Patch Changes
+
+- Updated dependencies [1180d11]
+  - @urlspec/language@0.10.0
+
 ## 0.6.0
 
 ### Minor Changes

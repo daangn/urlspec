@@ -1,5 +1,12 @@
 # @urlspec/language
 
+## 0.10.0
+
+### Minor Changes
+
+- 1180d11: Support one-or-more path parameters such as `/users/:something+`.
+  The resolver exposes the parameter name and its `+` modifier separately.
+
 ## 0.9.0
 
 ### Minor Changes
